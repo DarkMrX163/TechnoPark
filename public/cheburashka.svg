@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 460" width="520" height="460">
+  <g id="cheburashka" stroke="#1f100a" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Left Ear Outer -->
+    <path d="M 145 195 C 130 60, -10 90, 15 230 C 35 340, 155 310, 180 220" fill="#522f1c"/>
+    <!-- Left Ear Inner Contour -->
+    <path d="M 125 105 C 50 120, 50 240, 120 265 C 160 280, 165 240, 135 210 C 110 185, 115 150, 135 130" fill="none" stroke="#1f100a" stroke-width="6"/>
+
+    <!-- Right Ear Outer -->
+    <path d="M 335 220 C 360 310, 480 340, 500 230 C 525 90, 385 60, 370 195" fill="#522f1c"/>
+    <!-- Right Ear Inner Contour -->
+    <path d="M 380 130 C 400 150, 405 185, 380 210 C 350 240, 355 280, 395 265 C 465 240, 465 120, 390 105" fill="none" stroke="#1f100a" stroke-width="6"/>
+
+    <!-- Feet -->
+    <ellipse cx="205" cy="415" rx="42" ry="26" fill="#522f1c"/>
+    <ellipse cx="285" cy="415" rx="42" ry="26" fill="#522f1c"/>
+
+    <!-- Body (Hands behind back) -->
+    <path d="M 190 240 C 170 300, 180 380, 215 400 L 275 400 C 310 380, 320 300, 300 240 Z" fill="#522f1c"/>
+    <!-- Arms going behind back -->
+    <path d="M 195 248 C 175 270, 170 320, 185 340" fill="none" stroke="#1f100a" stroke-width="6"/>
+    <path d="M 295 248 C 315 270, 320 320, 305 340" fill="none" stroke="#1f100a" stroke-width="6"/>
+
+    <!-- Belly Patch -->
+    <ellipse cx="245" cy="320" rx="28" ry="46" fill="#f89d58" stroke="#1f100a" stroke-width="5"/>
+
+    <!-- Head Outer Hood -->
+    <ellipse cx="245" cy="135" rx="112" ry="105" fill="#522f1c"/>
+
+    <!-- Face Inner Skin -->
+    <ellipse cx="245" cy="138" rx="84" ry="74" fill="#f89d58" stroke="#1f100a" stroke-width="6"/>
+
+    <!-- Eyebrows -->
+    <path d="M 172 78 C 182 62, 198 62, 208 72" fill="#1f100a"/>
+    <path d="M 278 72 C 288 62, 304 62, 314 78" fill="#1f100a"/>
+
+    <!-- Left Eye -->
+    <g transform="translate(192, 110) rotate(-10)">
+      <ellipse cx="0" cy="0" rx="20" ry="25" fill="#ffffff" stroke="#1f100a" stroke-width="5"/>
+      <ellipse cx="2" cy="-2" rx="14" ry="18" fill="#1f100a"/>
+      <!-- Eye highlight -->
+      <path d="M -5 -12 C 0 -16, 8 -14, 8 -8 C 4 -12, -2 -12, -5 -12 Z" fill="#ffffff"/>
+      <circle cx="-2" cy="4" r="3" fill="#ffffff"/>
+    </g>
+
+    <!-- Right Eye -->
+    <g transform="translate(294, 110) rotate(10)">
+      <ellipse cx="0" cy="0" rx="20" ry="25" fill="#ffffff" stroke="#1f100a" stroke-width="5"/>
+      <ellipse cx="-2" cy="-2" rx="14" ry="18" fill="#1f100a"/>
+      <!-- Eye highlight -->
+      <path d="M -9 -12 C -4 -16, 4 -14, 4 -8 C 0 -12, -6 -12, -9 -12 Z" fill="#ffffff"/>
+      <circle cx="-6" cy="4" r="3" fill="#ffffff"/>
+    </g>
+
+    <!-- Nose -->
+    <polygon points="245,130 236,145 254,145" fill="#1f100a"/>
+
+    <!-- Mouth Smile -->
+    <path d="M 238 168 Q 245 174 252 168" fill="none" stroke="#b22218" stroke-width="5" stroke-linecap="round"/>
+  </g>
+</svg>

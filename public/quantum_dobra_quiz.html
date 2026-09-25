@@ -1,0 +1,3971 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Викторина «Квантум Добра» — VR, Робототехника и LEGO</title>
+  <meta name="description" content="Интерактивная адаптивная оффлайн-викторина технопарка «Квантум Добра»">
+  <style>
+    /* CSS Reset & Base */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background-color: #030712;
+      color: #f3f4f6;
+      line-height: 1.5;
+      min-height: 100vh;
+      overflow-x: hidden;
+      background-image: radial-gradient(circle at 50% 0%, rgba(6, 182, 212, 0.12) 0%, transparent 60%),
+                        radial-gradient(circle at 10% 80%, rgba(99, 102, 241, 0.08) 0%, transparent 50%),
+                        radial-gradient(circle at 90% 90%, rgba(217, 70, 239, 0.06) 0%, transparent 50%);
+      background-attachment: fixed;
+    }
+    button, input { font-family: inherit; }
+    button { cursor: pointer; border: none; outline: none; transition: all 0.2s ease; }
+    button:active { transform: scale(0.98); }
+    .container { max-width: 1040px; margin: 0 auto; padding: 16px; }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: rgba(15, 23, 42, 0.6); }
+    ::-webkit-scrollbar-thumb { background: rgba(51, 65, 85, 0.8); border-radius: 9999px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(6, 182, 212, 0.8); }
+
+    /* Header */
+    header {
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(51, 65, 85, 0.4);
+      position: sticky;
+      top: 0;
+      z-index: 40;
+    }
+    .header-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 16px;
+      max-width: 1040px;
+      margin: 0 auto;
+    }
+    .brand { display: flex; align-items: center; gap: 12px; }
+    .brand-icon {
+      width: 42px; height: 42px; border-radius: 12px;
+      background: linear-gradient(135deg, #06b6d4, #3b82f6, #6366f1);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px; box-shadow: 0 4px 14px rgba(6, 182, 212, 0.3);
+    }
+    .brand-title { font-size: 16px; font-weight: 800; color: #fff; letter-spacing: -0.02em; }
+    .brand-sub { font-size: 11px; color: #38bdf8; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+    .header-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .btn-action {
+      background: rgba(30, 41, 59, 0.8);
+      border: 1px solid rgba(51, 65, 85, 0.6);
+      color: #cbd5e1;
+      padding: 7px 12px;
+      border-radius: 10px;
+      font-size: 12px;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .btn-action:hover {
+      background: rgba(51, 65, 85, 0.8);
+      color: #fff;
+      border-color: #06b6d4;
+    }
+    .btn-vk {
+      background: #2787f5;
+      color: #fff;
+      border: 1px solid #4599ff;
+      padding: 7px 12px;
+      border-radius: 10px;
+      font-size: 12px;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 2px 8px rgba(39, 135, 245, 0.3);
+    }
+    .btn-vk:hover { background: #1a75e0; }
+
+    /* Offline badge in header */
+    .badge-offline {
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid rgba(16, 185, 129, 0.4);
+      color: #34d399;
+      padding: 3px 8px;
+      border-radius: 9999px;
+      font-size: 11px;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    /* Cards & Panels */
+    .card {
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid rgba(51, 65, 85, 0.5);
+      border-radius: 18px;
+      padding: 20px;
+      margin-bottom: 20px;
+      backdrop-filter: blur(8px);
+    }
+    .card-title {
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #94a3b8;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    /* Age Tiers */
+    .age-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; }
+    .age-card {
+      background: rgba(15, 23, 42, 0.7);
+      border: 2px solid rgba(51, 65, 85, 0.5);
+      border-radius: 16px;
+      padding: 16px;
+      text-align: left;
+      position: relative;
+      overflow: hidden;
+    }
+    .age-card.active {
+      border-color: #06b6d4;
+      background: rgba(8, 51, 68, 0.35);
+      box-shadow: 0 0 20px rgba(6, 182, 212, 0.2);
+    }
+    .age-badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 9999px;
+      font-size: 11px;
+      font-weight: 800;
+      margin-bottom: 6px;
+    }
+    .age-kids { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
+    .age-juniors { background: rgba(6, 182, 212, 0.2); color: #38bdf8; border: 1px solid rgba(6, 182, 212, 0.3); }
+    .age-seniors { background: rgba(99, 102, 241, 0.2); color: #a5b4fc; border: 1px solid rgba(99, 102, 241, 0.3); }
+    .age-meta { display: flex; gap: 12px; font-size: 11px; color: #94a3b8; margin-top: 10px; }
+
+    /* Categories Grid */
+    .cat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 12px; margin-bottom: 16px; }
+    .cat-card {
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid rgba(51, 65, 85, 0.6);
+      border-radius: 16px;
+      padding: 16px;
+      text-align: left;
+      transition: all 0.2s;
+    }
+    .cat-card:hover { border-color: #64748b; background: rgba(30, 41, 59, 0.5); }
+    .cat-card.active {
+      border-color: #06b6d4;
+      background: rgba(8, 47, 73, 0.4);
+      box-shadow: 0 0 16px rgba(6, 182, 212, 0.25);
+    }
+    .cat-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+    .cat-icon { font-size: 26px; }
+    .cat-count { font-size: 11px; background: rgba(30, 41, 59, 0.9); padding: 2px 8px; border-radius: 9999px; color: #cbd5e1; border: 1px solid #475569; }
+    .cat-title { font-size: 15px; font-weight: 800; color: #fff; margin-bottom: 4px; }
+    .cat-desc { font-size: 11px; color: #94a3b8; line-height: 1.4; }
+
+    /* Start Bar */
+    .start-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 16px;
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid rgba(51, 65, 85, 0.6);
+      border-radius: 16px;
+    }
+    .round-picker { display: flex; align-items: center; gap: 8px; font-size: 12px; color: #cbd5e1; }
+    .round-btn {
+      padding: 6px 12px;
+      background: rgba(30, 41, 59, 0.8);
+      border: 1px solid #475569;
+      color: #94a3b8;
+      border-radius: 8px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+    .round-btn.active {
+      background: #06b6d4;
+      color: #020617;
+      border-color: #06b6d4;
+    }
+    .btn-start {
+      background: linear-gradient(135deg, #06b6d4, #2563eb, #7c3aed);
+      color: #fff;
+      font-size: 16px;
+      font-weight: 800;
+      padding: 12px 28px;
+      border-radius: 12px;
+      box-shadow: 0 4px 18px rgba(6, 182, 212, 0.35);
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .btn-start:hover {
+      box-shadow: 0 6px 24px rgba(6, 182, 212, 0.5);
+      filter: brightness(1.08);
+    }
+
+    /* Quiz Screen */
+    .quiz-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    .timer-container {
+      margin-bottom: 16px;
+    }
+    .timer-info {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      font-weight: 700;
+      color: #94a3b8;
+      margin-bottom: 4px;
+    }
+    .timer-bar-bg {
+      height: 8px;
+      background: rgba(30, 41, 59, 0.8);
+      border-radius: 9999px;
+      overflow: hidden;
+      border: 1px solid rgba(51, 65, 85, 0.5);
+    }
+    .timer-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #06b6d4, #10b981);
+      width: 100%;
+      border-radius: 9999px;
+      transition: width 0.3s linear, background-color 0.3s;
+    }
+    .timer-warning .timer-bar-fill {
+      background: linear-gradient(90deg, #f59e0b, #ef4444);
+    }
+
+    .question-box {
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid rgba(51, 65, 85, 0.6);
+      border-radius: 20px;
+      padding: 24px;
+      margin-bottom: 18px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+    }
+    .question-hint {
+      font-size: 32px;
+      margin-bottom: 8px;
+    }
+    .question-text {
+      font-size: 19px;
+      font-weight: 700;
+      color: #fff;
+      line-height: 1.4;
+    }
+
+    /* Options Grid */
+    .options-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+    @media (min-width: 640px) {
+      .options-grid { grid-template-columns: 1fr 1fr; }
+    }
+    .option-btn {
+      background: rgba(30, 41, 59, 0.7);
+      border: 1.5px solid rgba(51, 65, 85, 0.7);
+      border-radius: 14px;
+      padding: 14px 18px;
+      color: #e2e8f0;
+      font-size: 15px;
+      font-weight: 600;
+      text-align: left;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      line-height: 1.35;
+    }
+    .option-btn:hover:not(:disabled) {
+      background: rgba(51, 65, 85, 0.7);
+      border-color: #06b6d4;
+      color: #fff;
+    }
+    .option-index {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid rgba(71, 85, 105, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 800;
+      color: #94a3b8;
+      flex-shrink: 0;
+    }
+    .option-btn.correct {
+      background: rgba(16, 185, 129, 0.25) !important;
+      border-color: #10b981 !important;
+      color: #34d399 !important;
+    }
+    .option-btn.correct .option-index {
+      background: #10b981;
+      color: #020617;
+      border-color: #10b981;
+    }
+    .option-btn.wrong {
+      background: rgba(239, 68, 68, 0.25) !important;
+      border-color: #ef4444 !important;
+      color: #f87171 !important;
+    }
+    .option-btn.wrong .option-index {
+      background: #ef4444;
+      color: #fff;
+      border-color: #ef4444;
+    }
+
+    /* Explanation Box */
+    .explanation-box {
+      background: rgba(8, 47, 73, 0.4);
+      border: 1px solid rgba(6, 182, 212, 0.4);
+      border-radius: 16px;
+      padding: 16px 20px;
+      margin-bottom: 16px;
+      animation: fadeIn 0.3s ease;
+    }
+    .exp-title { font-size: 13px; font-weight: 700; color: #38bdf8; margin-bottom: 4px; }
+    .exp-text { font-size: 14px; color: #cbd5e1; margin-bottom: 10px; }
+    .fact-box {
+      background: rgba(15, 23, 42, 0.8);
+      border-left: 3px solid #f59e0b;
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      color: #e2e8f0;
+    }
+    .fact-title { font-weight: 700; color: #fbbf24; margin-bottom: 2px; }
+
+    .btn-next {
+      background: linear-gradient(135deg, #06b6d4, #2563eb);
+      color: #fff;
+      font-size: 15px;
+      font-weight: 800;
+      padding: 12px 24px;
+      border-radius: 12px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      float: right;
+    }
+
+    /* Results */
+    .results-card {
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(51, 65, 85, 0.7);
+      border-radius: 24px;
+      padding: 32px 24px;
+      text-align: center;
+      max-width: 680px;
+      margin: 0 auto;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+    }
+    .results-badge { font-size: 48px; margin-bottom: 8px; }
+    .results-title { font-size: 26px; font-weight: 900; color: #fff; margin-bottom: 6px; }
+    .results-subtitle { font-size: 14px; color: #94a3b8; margin-bottom: 24px; }
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+    .stat-pill {
+      background: rgba(30, 41, 59, 0.6);
+      border: 1px solid rgba(51, 65, 85, 0.6);
+      border-radius: 14px;
+      padding: 12px;
+    }
+    .stat-val { font-size: 22px; font-weight: 900; color: #38bdf8; }
+    .stat-lbl { font-size: 11px; color: #94a3b8; font-weight: 600; text-transform: uppercase; }
+
+    /* Modals */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(2, 6, 23, 0.85);
+      backdrop-filter: blur(8px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      padding: 16px;
+    }
+    .modal-overlay.open { display: flex; animation: fadeIn 0.2s ease; }
+    .modal-content {
+      background: #0f172a;
+      border: 1px solid #334155;
+      border-radius: 20px;
+      max-width: 580px;
+      width: 100%;
+      max-height: 85vh;
+      overflow-y: auto;
+      padding: 24px;
+      position: relative;
+    }
+    .modal-close {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      background: #1e293b;
+      border: 1px solid #475569;
+      color: #94a3b8;
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+    }
+    .modal-close:hover { color: #fff; background: #334155; }
+
+    /* Leaderboard Podium */
+    .podium-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin: 16px 0; }
+    .podium-slot {
+      background: rgba(30, 41, 59, 0.6);
+      border: 1px solid rgba(51, 65, 85, 0.6);
+      border-radius: 12px;
+      padding: 10px 8px;
+      text-align: center;
+    }
+    .podium-slot.first { border-color: #eab308; background: rgba(234, 179, 8, 0.1); }
+    .podium-slot.second { border-color: #94a3b8; }
+    .podium-slot.third { border-color: #d97706; }
+    .podium-avatar { width: 36px; height: 36px; border-radius: 50%; margin: 0 auto 6px; object-fit: cover; }
+    .podium-name { font-size: 11px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #fff; }
+    .podium-score { font-size: 13px; font-weight: 800; color: #38bdf8; }
+
+    /* Toast Notification */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: linear-gradient(135deg, #0f172a, #1e1b4b);
+      border: 1px solid #6366f1;
+      border-radius: 14px;
+      padding: 14px 18px;
+      color: #fff;
+      display: none;
+      align-items: center;
+      gap: 12px;
+      box-shadow: 0 8px 30px rgba(99, 102, 241, 0.4);
+      z-index: 200;
+      animation: slideUp 0.3s ease;
+    }
+    .toast.show { display: flex; }
+
+    /* Confetti Canvas */
+    #confetti-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 150;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.98); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Confetti Canvas -->
+  <canvas id="confetti-canvas"></canvas>
+
+  <!-- Header -->
+  <header>
+    <div class="header-inner">
+      <div class="brand">
+        <div class="brand-icon">⚡</div>
+        <div>
+          <div class="brand-title">Квантум Добра</div>
+          <div class="brand-sub">Инженерная викторина</div>
+        </div>
+        <span class="badge-offline">● Оффлайн-версия</span>
+      </div>
+
+      <div class="header-actions">
+        <button id="btn-sound-toggle" class="btn-action" title="Включить/выключить звук">
+          <span id="sound-icon">🔊</span>
+          <span id="sound-label">Звук</span>
+        </button>
+        <button id="btn-open-leaderboard" class="btn-action">
+          🏆 Лидеры
+        </button>
+        <button id="btn-open-achievements" class="btn-action">
+          ⭐ Награды (<span id="unlocked-count">0</span>/9)
+        </button>
+        <button id="btn-open-vk" class="btn-vk">
+          <span id="header-user-avatar">💙</span>
+          <span id="header-user-name">VK ID</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <div class="container">
+
+    <!-- SCREEN 1: MENU -->
+    <div id="screen-menu">
+      <!-- Welcome Banner -->
+      <div class="card" style="background: linear-gradient(135deg, rgba(8, 47, 73, 0.4), rgba(15, 23, 42, 0.7)); border-color: rgba(6, 182, 212, 0.4);">
+        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+          <div>
+            <div style="font-size: 20px; font-weight: 800; color: #fff; margin-bottom: 4px;">
+              Приветствуем в детском технопарке «Квантум Добра»! 🚀
+            </div>
+            <div style="font-size: 13px; color: #94a3b8; max-width: 680px;">
+              Интерактивная викторина по VR-технологиям, робототехнике и легоконструированию. Выбери свой возраст и направление, чтобы начать соревнование!
+            </div>
+          </div>
+          <div style="display: flex; gap: 8px;">
+            <span style="font-size: 11px; background: rgba(6, 182, 212, 0.15); border: 1px solid rgba(6, 182, 212, 0.3); color: #38bdf8; padding: 4px 10px; border-radius: 9999px; font-weight: 700;">
+              96 вопросов в базе
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 1. Age Tier Selector -->
+      <div class="card">
+        <div class="card-title">
+          <span>Шаг 1: Возрастная категория (сложность адаптируется)</span>
+          <span style="font-size: 11px; color: #38bdf8; font-weight: 600;">3 уровня сложности</span>
+        </div>
+        <div class="age-grid">
+          <div class="age-card active" data-age="kids" onclick="setAgeGroup('kids')">
+            <span class="age-badge age-kids">6–9 лет</span>
+            <div style="font-size: 15px; font-weight: 800; color: #fff; margin-bottom: 2px;">🚀 Младшие изобретатели</div>
+            <div style="font-size: 12px; color: #94a3b8;">Наглядные вопросы с подсказками, датчики вокруг нас и основы LEGO WeDo.</div>
+            <div class="age-meta">
+              <span>⏱️ 35 сек / вопрос</span>
+              <span>⭐ Множитель x1.0</span>
+            </div>
+          </div>
+
+          <div class="age-card" data-age="juniors" onclick="setAgeGroup('juniors')">
+            <span class="age-badge age-juniors">10–13 лет</span>
+            <div style="font-size: 15px; font-weight: 800; color: #fff; margin-bottom: 2px;">⚡ Юные инженеры</div>
+            <div style="font-size: 12px; color: #94a3b8;">Редукторы, датчики цвета и звука, контроллеры и свобода движений 3DoF/6DoF.</div>
+            <div class="age-meta">
+              <span>⏱️ 25 сек / вопрос</span>
+              <span>⭐ Множитель x1.5</span>
+            </div>
+          </div>
+
+          <div class="age-card" data-age="seniors" onclick="setAgeGroup('seniors')">
+            <span class="age-badge age-seniors">14+ лет</span>
+            <div style="font-size: 15px; font-weight: 800; color: #fff; margin-bottom: 2px;">🧠 Продвинутые резиденты</div>
+            <div style="font-size: 12px; color: #94a3b8;">Инверсная кинематика, SLAM-картография, оптический трекинг и ROS 2.</div>
+            <div class="age-meta">
+              <span>⏱️ 20 сек / вопрос</span>
+              <span>⭐ Множитель x2.0</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. Category Selector -->
+      <div class="card">
+        <div class="card-title">
+          <span>Шаг 2: Выбор квантума (направления)</span>
+          <span id="topic-questions-count" style="font-size: 11px; color: #38bdf8; font-weight: 600;">32 вопроса в теме</span>
+        </div>
+        <div class="cat-grid">
+          <div class="cat-card active" data-cat="vr" onclick="setCategory('vr')">
+            <div class="cat-top">
+              <span class="cat-icon">🥽</span>
+              <span class="cat-count">32 вопроса</span>
+            </div>
+            <div class="cat-title">VR-технологии</div>
+            <div class="cat-desc">Виртуальная и дополненная реальность, шлемы, линзы и трекинг.</div>
+          </div>
+
+          <div class="cat-card" data-cat="robotics" onclick="setCategory('robotics')">
+            <div class="cat-top">
+              <span class="cat-icon">🤖</span>
+              <span class="cat-count">32 вопроса</span>
+            </div>
+            <div class="cat-title">Робототехника</div>
+            <div class="cat-desc">Промробоквантум, датчики, сервоприводы, ПИД-регуляторы и моторы.</div>
+          </div>
+
+          <div class="cat-card" data-cat="lego" onclick="setCategory('lego')">
+            <div class="cat-top">
+              <span class="cat-icon">🧱</span>
+              <span class="cat-count">43 вопроса</span>
+            </div>
+            <div class="cat-title">Легоконструирование</div>
+            <div class="cat-desc">Механика, редукторы, роботы LEGO Mindstorms EV3, SPIKE & WeDo.</div>
+          </div>
+
+          <div class="cat-card" data-cat="all" onclick="setCategory('all')">
+            <div class="cat-top">
+              <span class="cat-icon">⚡</span>
+              <span class="cat-count">107 вопросов</span>
+            </div>
+            <div class="cat-title">Квантум Микс</div>
+            <div class="cat-desc">Комплексный турнир по всем темам сразу. Максимум опыта и наград!</div>
+          </div>
+        </div>
+
+        <!-- Participant Info Form for Certificate -->
+        <div style="background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(51, 65, 85, 0.8); border-radius: 16px; padding: 16px; margin-bottom: 16px;">
+          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+            <span style="font-size: 18px;">🎖️</span>
+            <div style="font-size: 13px; font-weight: 800; color: #fff; text-transform: uppercase; letter-spacing: 0.5px;">
+              Данные участника для именного сертификата
+            </div>
+            <span style="font-size: 10px; padding: 2px 8px; border-radius: 9999px; background: rgba(234, 179, 8, 0.15); color: #fde047; border: 1px solid rgba(234, 179, 8, 0.3); font-weight: 700; margin-left: auto;">
+              Выдаётся по завершении
+            </span>
+          </div>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px;">
+            <div>
+              <label style="display: block; font-size: 11px; font-weight: 700; color: #cbd5e1; margin-bottom: 4px;">
+                Имя и Отчество <span style="color: #f43f5e;">*</span>
+              </label>
+              <input type="text" id="participant-name-input" style="width: 100%; background: #020617; border: 1px solid #334155; border-radius: 10px; padding: 9px 12px; color: #fff; font-size: 13px; outline: none;" placeholder="Например: Алексей Сергеевич" onchange="saveParticipantData()">
+            </div>
+            <div>
+              <label style="display: block; font-size: 11px; font-weight: 700; color: #cbd5e1; margin-bottom: 4px;">
+                Школа / Класс / Организация
+              </label>
+              <input type="text" id="participant-school-input" style="width: 100%; background: #020617; border: 1px solid #334155; border-radius: 10px; padding: 9px 12px; color: #fff; font-size: 13px; outline: none;" placeholder="Например: МБОУ СОШ №10, 7А класс" onchange="saveParticipantData()">
+            </div>
+          </div>
+        </div>
+
+        <!-- Start & Round length Bar -->
+        <div class="start-bar">
+          <div class="round-picker">
+            <span>Длина раунда:</span>
+            <button class="round-btn active" data-len="8" onclick="setRoundLength(8)">8 вопросов</button>
+            <button class="round-btn" data-len="12" onclick="setRoundLength(12)">12 вопросов</button>
+            <button class="round-btn" data-len="0" onclick="setRoundLength(0)">Все вопросы</button>
+          </div>
+
+          <button id="btn-start-game" class="btn-start" onclick="startQuiz()">
+            <span>Начать викторину</span>
+            <span style="font-size: 18px;">➔</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCREEN 2: ACTIVE QUIZ -->
+    <div id="screen-quiz" style="display: none;">
+      <div class="quiz-header">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <button class="btn-action" onclick="confirmQuit()" style="padding: 6px 10px;">✕ В меню</button>
+          <span id="quiz-cat-badge" style="font-size: 11px; font-weight: 700; background: rgba(6, 182, 212, 0.2); color: #38bdf8; border: 1px solid rgba(6, 182, 212, 0.3); padding: 4px 10px; border-radius: 9999px;">
+            🥽 VR-технологии
+          </span>
+          <span id="quiz-age-badge" style="font-size: 11px; font-weight: 700; background: rgba(99, 102, 241, 0.2); color: #a5b4fc; border: 1px solid rgba(99, 102, 241, 0.3); padding: 4px 10px; border-radius: 9999px;">
+            6–9 лет
+          </span>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <div id="streak-indicator" style="display: none; align-items: center; gap: 4px; font-size: 13px; font-weight: 800; color: #fbbf24; background: rgba(245, 158, 11, 0.15); padding: 3px 10px; border-radius: 9999px; border: 1px solid rgba(245, 158, 11, 0.3);">
+            🔥 Стрик x<span id="streak-count">0</span>
+          </div>
+          <div style="font-size: 14px; font-weight: 800; color: #38bdf8;">
+            Счет: <span id="quiz-score">0</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Timer Bar -->
+      <div class="timer-container" id="timer-box">
+        <div class="timer-info">
+          <span>Вопрос <span id="current-q-num">1</span> из <span id="total-q-num">8</span></span>
+          <span>⏱️ <span id="timer-seconds">35</span> сек</span>
+        </div>
+        <div class="timer-bar-bg">
+          <div class="timer-bar-fill" id="timer-fill"></div>
+        </div>
+      </div>
+
+      <!-- Question Card -->
+      <div class="question-box">
+        <div id="q-img-wrap" style="display: none; width: 100%; height: 210px; max-height: 250px; border-radius: 14px; overflow: hidden; margin-bottom: 14px; position: relative; border: 1px solid rgba(51, 65, 85, 0.6); background: rgba(2, 6, 23, 0.8);">
+          <img id="q-img" src="" alt="Иллюстрация к вопросу" referrerpolicy="no-referrer" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.parentElement.style.display='none'">
+          <div style="position: absolute; bottom: 8px; left: 8px; background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(8px); padding: 4px 10px; border-radius: 10px; font-size: 16px; border: 1px solid rgba(51, 65, 85, 0.6); display: flex; align-items: center; gap: 6px;">
+            <span id="q-img-badge">🥽</span>
+            <span style="font-size: 11px; color: #cbd5e1; font-weight: 600;">К вопросу</span>
+          </div>
+        </div>
+        <div class="question-hint" id="q-hint">🥽</div>
+        <div class="question-text" id="q-text">Загрузка вопроса...</div>
+      </div>
+
+      <!-- Options -->
+      <div class="options-grid" id="options-container">
+        <!-- 4 option buttons will be rendered here -->
+      </div>
+
+      <!-- Explanation Box -->
+      <div class="explanation-box" id="explanation-container" style="display: none;">
+        <div class="exp-title" id="exp-status">Правильно! 🎉</div>
+        <div class="exp-text" id="exp-text">Объяснение ответа...</div>
+        <div class="fact-box" id="fact-box">
+          <div class="fact-title">💡 Факт технопарка:</div>
+          <div id="fact-text">Интересный факт...</div>
+        </div>
+        <div style="overflow: hidden; margin-top: 14px;">
+          <button class="btn-next" id="btn-next-question" onclick="nextQuestion()">
+            <span>Следующий вопрос</span>
+            <span>➔</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCREEN 3: RESULTS -->
+    <div id="screen-results" style="display: none;">
+      <div class="results-card">
+        <div class="results-badge" id="res-badge">🏆</div>
+        <h2 class="results-title" id="res-title">Викторина пройдена!</h2>
+        <p class="results-subtitle" id="res-subtitle">Отличный результат, резидент технопарка!</p>
+
+        <div class="stats-row">
+          <div class="stat-pill">
+            <div class="stat-val" id="res-score">0</div>
+            <div class="stat-lbl">Очки XP</div>
+          </div>
+          <div class="stat-pill">
+            <div class="stat-val" id="res-accuracy">0%</div>
+            <div class="stat-lbl">Точность</div>
+          </div>
+          <div class="stat-pill">
+            <div class="stat-val" id="res-correct">0/0</div>
+            <div class="stat-lbl">Верно</div>
+          </div>
+          <div class="stat-pill">
+            <div class="stat-val" id="res-maxstreak">0</div>
+            <div class="stat-lbl">Макс. Стрик</div>
+          </div>
+        </div>
+
+        <!-- Get Certificate Banner -->
+        <div style="background: linear-gradient(135deg, rgba(120, 53, 15, 0.4), rgba(15, 23, 42, 0.8), rgba(8, 47, 73, 0.4)); border: 1px solid rgba(234, 179, 8, 0.4); border-radius: 18px; padding: 16px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; text-align: left;">
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <div style="width: 44px; height: 44px; border-radius: 12px; background: rgba(234, 179, 8, 0.2); border: 1px solid rgba(234, 179, 8, 0.4); display: flex; align-items: center; justify-content: center; font-size: 22px; shrink: 0;">
+              🎖️
+            </div>
+            <div>
+              <div style="font-size: 14px; font-weight: 800; color: #fff; margin-bottom: 2px;">
+                Ваш персональный сертификат готов!
+              </div>
+              <div style="font-size: 12px; color: #cbd5e1;">
+                Заберите именной диплом «Квантум Добра» с вашим результатом и школой.
+              </div>
+            </div>
+          </div>
+          <button onclick="openCertificateModal()" class="btn-start" style="padding: 10px 20px; font-size: 13px; background: linear-gradient(135deg, #eab308, #f59e0b); color: #020617; font-weight: 800;">
+            🎖️ Получить сертификат
+          </button>
+        </div>
+
+        <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+          <button class="btn-start" onclick="restartQuiz()">
+            <span>Сыграть ещё раз</span>
+            <span>↺</span>
+          </button>
+          <button class="btn-action" style="font-size: 14px; padding: 10px 20px;" onclick="openLeaderboard()">
+            🏆 Таблица лидеров
+          </button>
+          <button class="btn-action" style="font-size: 14px; padding: 10px 20px;" onclick="showMenu()">
+            📋 Выбор темы
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- MODAL: CERTIFICATE -->
+  <div class="modal-overlay" id="modal-certificate" onclick="closeModalOnOverlay(event, 'modal-certificate')">
+    <div class="modal-content" style="max-width: 860px; text-align: left;">
+      <button class="modal-close" onclick="closeModal('modal-certificate')">✕</button>
+
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; gap: 10px; border-bottom: 1px solid #334155; padding-bottom: 12px;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span style="font-size: 24px;">🎖️</span>
+          <div>
+            <h3 style="font-size: 18px; font-weight: 800; color: #fff;">Именной электронный сертификат</h3>
+            <p style="font-size: 12px; color: #94a3b8;">Детский технопарк «Квантум Добра» · Высокое разрешение (1920×1080)</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Editable Name & School -->
+      <div style="background: rgba(2, 6, 23, 0.8); border: 1px solid #334155; border-radius: 12px; padding: 12px; margin-bottom: 14px;">
+        <div style="font-size: 11px; font-weight: 700; color: #38bdf8; text-transform: uppercase; margin-bottom: 8px;">
+          Уточнение данных участников перед скачиванием:
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px;">
+          <div>
+            <label style="font-size: 11px; color: #cbd5e1; display: block; margin-bottom: 3px;">Имя и Отчество:</label>
+            <input type="text" id="cert-modal-name" style="width: 100%; background: #0f172a; border: 1px solid #475569; border-radius: 8px; padding: 6px 10px; color: #fff; font-size: 13px;" oninput="updateCertPreview()">
+          </div>
+          <div>
+            <label style="font-size: 11px; color: #cbd5e1; display: block; margin-bottom: 3px;">Школа / Класс / Организация:</label>
+            <input type="text" id="cert-modal-school" style="width: 100%; background: #0f172a; border: 1px solid #475569; border-radius: 8px; padding: 6px 10px; color: #fff; font-size: 13px;" oninput="updateCertPreview()">
+          </div>
+        </div>
+      </div>
+
+      <!-- Certificate Canvas Image Container -->
+      <div style="position: relative; border-radius: 14px; overflow: hidden; border: 1px solid rgba(6, 182, 212, 0.4); background: #020617; text-align: center; margin-bottom: 14px;">
+        <img id="cert-img-preview" src="" style="width: 100%; height: auto; max-height: 480px; object-fit: contain; display: block; margin: 0 auto;" alt="Сертификат">
+      </div>
+
+      <!-- Footer Buttons -->
+      <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; border-top: 1px solid #334155; padding-top: 12px;">
+        <div style="font-size: 11px; color: #94a3b8;">
+          ID: <code id="cert-modal-id" style="color: #38bdf8; font-weight: 700;">QD-2026-0000</code>
+        </div>
+        <div style="display: flex; gap: 8px;">
+          <button class="btn-action" style="font-size: 13px; padding: 8px 16px;" onclick="printCertFromModal()">
+            🖨️ Печать / PDF
+          </button>
+          <button class="btn-start" style="font-size: 13px; padding: 8px 20px; background: linear-gradient(135deg, #10b981, #06b6d4);" onclick="downloadCertFromModal()">
+            💾 Скачать сертификат (PNG)
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: LEADERBOARD -->
+  <div class="modal-overlay" id="modal-leaderboard" onclick="closeModalOnOverlay(event, 'modal-leaderboard')">
+    <div class="modal-content">
+      <button class="modal-close" onclick="closeModal('modal-leaderboard')">✕</button>
+      <h3 style="font-size: 18px; font-weight: 800; color: #fff; margin-bottom: 4px;">Таблица лидеров технопарка</h3>
+      <p style="font-size: 12px; color: #94a3b8; margin-bottom: 16px;">Лучшие результаты резидентов «Квантум Добра»</p>
+
+      <!-- Podium -->
+      <div class="podium-grid" id="leaderboard-podium">
+        <!-- Rendered via JS -->
+      </div>
+
+      <!-- List -->
+      <div id="leaderboard-list" style="margin-top: 16px;">
+        <!-- List rows -->
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: ACHIEVEMENTS -->
+  <div class="modal-overlay" id="modal-achievements" onclick="closeModalOnOverlay(event, 'modal-achievements')">
+    <div class="modal-content">
+      <button class="modal-close" onclick="closeModal('modal-achievements')">✕</button>
+      <h3 style="font-size: 18px; font-weight: 800; color: #fff; margin-bottom: 4px;">Достижения резидента</h3>
+      <p style="font-size: 12px; color: #94a3b8; margin-bottom: 16px;">Разблокируй все 9 уникальных значков технопарка!</p>
+
+      <div id="achievements-list" style="display: grid; grid-template-columns: 1fr; gap: 10px;">
+        <!-- Rendered via JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: VK AUTH -->
+  <div class="modal-overlay" id="modal-vk" onclick="closeModalOnOverlay(event, 'modal-vk')">
+    <div class="modal-content" style="max-width: 440px;">
+      <button class="modal-close" onclick="closeModal('modal-vk')">✕</button>
+      <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 14px;">
+        <div style="width: 38px; height: 38px; border-radius: 10px; background: #2787f5; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 20px;">💙</div>
+        <div>
+          <h3 style="font-size: 17px; font-weight: 800; color: #fff;">Профиль резидента</h3>
+          <p style="font-size: 12px; color: #94a3b8;">Сохранение очков и участие в рейтинге</p>
+        </div>
+      </div>
+
+      <div style="margin-bottom: 14px;">
+        <label style="display: block; font-size: 12px; font-weight: 700; color: #cbd5e1; margin-bottom: 4px;">Имя участника:</label>
+        <input type="text" id="input-username" style="width: 100%; background: #1e293b; border: 1px solid #475569; border-radius: 10px; padding: 10px 14px; color: #fff; font-size: 14px;" placeholder="Например: Иван Иванов" value="Юный Кванторианец">
+      </div>
+
+      <div style="margin-bottom: 14px;">
+        <label style="display: block; font-size: 12px; font-weight: 700; color: #cbd5e1; margin-bottom: 4px;">Никнейм VK ID:</label>
+        <input type="text" id="input-vkid" style="width: 100%; background: #1e293b; border: 1px solid #475569; border-radius: 10px; padding: 10px 14px; color: #fff; font-size: 14px;" placeholder="id12345678 или логин" value="quantum_resident">
+      </div>
+
+      <div style="margin-bottom: 18px;">
+        <label style="display: block; font-size: 12px; font-weight: 700; color: #cbd5e1; margin-bottom: 6px;">Выбери аватар:</label>
+        <div style="display: flex; gap: 10px; font-size: 24px;">
+          <button class="avatar-pick-btn" onclick="pickAvatar('🤖')" style="padding: 8px; border-radius: 10px; background: #1e293b; border: 2px solid #06b6d4;">🤖</button>
+          <button class="avatar-pick-btn" onclick="pickAvatar('🥽')" style="padding: 8px; border-radius: 10px; background: #1e293b; border: 2px solid transparent;">🥽</button>
+          <button class="avatar-pick-btn" onclick="pickAvatar('🚀')" style="padding: 8px; border-radius: 10px; background: #1e293b; border: 2px solid transparent;">🚀</button>
+          <button class="avatar-pick-btn" onclick="pickAvatar('🧱')" style="padding: 8px; border-radius: 10px; background: #1e293b; border: 2px solid transparent;">🧱</button>
+          <button class="avatar-pick-btn" onclick="pickAvatar('⚡')" style="padding: 8px; border-radius: 10px; background: #1e293b; border: 2px solid transparent;">⚡</button>
+        </div>
+      </div>
+
+      <button onclick="saveVkProfile()" class="btn-start" style="width: 100%; justify-content: center; font-size: 14px; padding: 12px;">
+        Сохранить профиль
+      </button>
+    </div>
+  </div>
+
+  <!-- MODAL: CONFIRM QUIT -->
+  <div class="modal-overlay" id="modal-quit" onclick="closeModalOnOverlay(event, 'modal-quit')">
+    <div class="modal-content" style="max-width: 420px; text-align: center;">
+      <button class="modal-close" onclick="closeModal('modal-quit')">✕</button>
+      <div style="width: 52px; height: 52px; margin: 0 auto 14px; border-radius: 16px; background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.3); display: flex; align-items: center; justify-content: center; font-size: 26px;">
+        ⚠️
+      </div>
+      <h3 style="font-size: 18px; font-weight: 800; color: #fff; margin-bottom: 8px;">
+        Прервать викторину?
+      </h3>
+      <p style="font-size: 13px; color: #94a3b8; line-height: 1.5; margin-bottom: 20px;">
+        Текущий прогресс раунда не сохранится. Вы уверены, что хотите вернуться в главное меню?
+      </p>
+      <div style="display: flex; gap: 10px; justify-content: center;">
+        <button onclick="closeModal('modal-quit')" class="btn-action" style="flex: 1; justify-content: center; font-size: 13px; padding: 10px;">
+          Продолжить игру
+        </button>
+        <button onclick="executeQuit()" class="btn-start" style="flex: 1; justify-content: center; background: linear-gradient(135deg, #e11d48, #be123c); box-shadow: 0 4px 14px rgba(225, 29, 72, 0.3); font-size: 13px; padding: 10px;">
+          Да, выйти
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATION -->
+  <div class="toast" id="achievement-toast">
+    <div style="font-size: 26px;" id="toast-icon">⭐</div>
+    <div>
+      <div style="font-size: 11px; font-weight: 700; color: #818cf8; text-transform: uppercase;">Новое достижение!</div>
+      <div style="font-size: 14px; font-weight: 800; color: #fff;" id="toast-title">Турбо-комбо x5</div>
+    </div>
+  </div>
+
+  <!-- EMBEDDED JAVASCRIPT & DATA -->
+  <script>
+    // 1. DATASETS
+    const AGE_TIERS = {
+  "kids": {
+    "id": "kids",
+    "title": "Младшие изобретатели",
+    "subtitle": "Базовый уровень с подсказками",
+    "ageRange": "6–9 лет",
+    "timeLimitSeconds": 35,
+    "multiplier": 1,
+    "icon": "🚀",
+    "badgeColor": "bg-emerald-500/20 text-emerald-400 border-emerald-500/30",
+    "accentGradient": "from-emerald-500 to-teal-600",
+    "description": "Наглядные вопросы с яркими примерами, датчиками вокруг нас и основами LEGO WeDo."
+  },
+  "juniors": {
+    "id": "juniors",
+    "title": "Юные инженеры",
+    "subtitle": "Инженерный уровень",
+    "ageRange": "10–13 лет",
+    "timeLimitSeconds": 25,
+    "multiplier": 1.5,
+    "icon": "⚡",
+    "badgeColor": "bg-cyan-500/20 text-cyan-400 border-cyan-500/30",
+    "accentGradient": "from-cyan-500 to-blue-600",
+    "description": "Передачи и редукторы, датчики цвета и ультразвука, контроллеры и свобода движений 3DoF/6DoF."
+  },
+  "seniors": {
+    "id": "seniors",
+    "title": "Продвинутые резиденты",
+    "subtitle": "Профи Квантума",
+    "ageRange": "14+ лет",
+    "timeLimitSeconds": 20,
+    "multiplier": 2,
+    "icon": "🧠",
+    "badgeColor": "bg-indigo-500/20 text-indigo-400 border-indigo-500/30",
+    "accentGradient": "from-indigo-500 to-purple-600",
+    "description": "Инверсная кинематика, SLAM-картография, оптический трекинг, частота кадров и крутящий момент."
+  }
+};
+    const QUESTIONS = [
+  {
+    "id": "vr_k_1",
+    "category": "vr",
+    "ageGroup": "kids",
+    "question": "Что надевает человек на голову, чтобы очутиться в виртуальном мире?",
+    "options": [
+      "VR-шлем (очки)",
+      "Солнечные очки",
+      "Зимнюю шапку",
+      "Подводную маску"
+    ],
+    "correctIndex": 0,
+    "explanation": "VR-шлем имеет встроенные экраны и линзы, создающие эффект полного погружения в другой мир!",
+    "fact": "В VR-шлеме экран находится близко к глазам, но специальные линзы фокусируют зрение так, будто мир вокруг огромный.",
+    "imageHint": "🥽",
+    "imageUrl": "https://images.unsplash.com/photo-1593508512255-86ab42a8e620?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "vr_k_2",
+    "category": "vr",
+    "ageGroup": "kids",
+    "question": "Что держат в руках игроки в VR, чтобы брать виртуальные предметы?",
+    "options": [
+      "Обычные карандаши",
+      "Контроллеры (джойстики)",
+      "Фонарики",
+      "Пульт от телевизора"
+    ],
+    "correctIndex": 1,
+    "explanation": "VR-контроллеры отслеживают движения рук, позволяют нажимать кнопки и хватать виртуальные яблоки или мечи!",
+    "fact": "Современные контроллеры умеют вибрировать, когда ты дотрагиваешься до виртуального предмета.",
+    "imageHint": "🎮",
+    "imageUrl": "https://images.unsplash.com/photo-1617802690992-15d93263d3a9?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "vr_k_3",
+    "category": "vr",
+    "ageGroup": "kids",
+    "question": "Что происходит в очках VR, когда ты поворачиваешь голову направо?",
+    "options": [
+      "Включается мультик",
+      "Экран гаснет",
+      "Картинка тоже поворачивается направо",
+      "Ничего не меняется"
+    ],
+    "correctIndex": 2,
+    "explanation": "Датчики движения в шлеме моментально поворачивают картинку следом за твоей головой, как в настоящей жизни!",
+    "fact": "Это называется трекинг ориентации. Шлем вычисляет положение сотни раз за одну секунду!",
+    "imageHint": "🔄",
+    "imageUrl": "https://images.unsplash.com/photo-1535223289827-42f1e9919769?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "vr_k_4",
+    "category": "vr",
+    "ageGroup": "kids",
+    "question": "Чем Дополненная реальность (AR) отличается от Виртуальной (VR)?",
+    "options": [
+      "В AR можно играть только под водой",
+      "Они ничем не отличаются",
+      "В AR экран всегда черно-белый",
+      "В AR мы видим реальную комнату и цифровых персонажей на ней"
+    ],
+    "correctIndex": 3,
+    "explanation": "В AR цифровые объекты (например, танцующий робот) появляются прямо на твоем столе или полу!",
+    "fact": "Маски в смартфонах, которые примеряют ушки котиков на лицо — это самый популярный пример AR.",
+    "imageHint": "📱",
+    "imageUrl": "https://images.unsplash.com/photo-1512499617640-c74ae3a79d37?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "vr_k_5",
+    "category": "vr",
+    "ageGroup": "kids",
+    "question": "Для чего в VR-шлемах нужны линзы перед глазами?",
+    "options": [
+      "Чтобы глаза могли четко видеть близкий экран без напряжения",
+      "Чтобы защищать от ветра",
+      "Для красоты",
+      "Чтобы шлем был тяжелее"
+    ],
+    "correctIndex": 0,
+    "explanation": "Линзы преломляют лучи света от экрана так, чтобы человеческий глаз легко фокусировался на виртуальных объектах.",
+    "fact": "Расстояние между линзами можно регулировать под расстояние между зрачками каждого ребенка.",
+    "imageHint": "🔍",
+    "imageUrl": "https://images.unsplash.com/photo-1592478411213-6153e4ebc07d?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "vr_k_6",
+    "category": "vr",
+    "ageGroup": "kids",
+    "question": "Что такое виртуальный «аватар»?",
+    "options": [
+      "Батарейка",
+      "Твой цифровой персонаж, которого видят другие игроки",
+      "Провод зарядки",
+      "Коробка от шлема"
+    ],
+    "correctIndex": 1,
+    "explanation": "Аватар — это цифровое воплощение человека в виртуальном пространстве, от робота до фантастического героя.",
+    "fact": "В виртуальных мирах аватару можно выбирать одежду, цвет волос и даже форму робота!",
+    "imageHint": "🤖",
+    "imageUrl": "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "vr_k_7",
+    "category": "vr",
+    "ageGroup": "kids",
+    "question": "Зачем в VR-шлеме очерчивают безопасную границу игровой зоны (сетку)?",
+    "options": [
+      "Чтобы быстрее бегать",
+      "Для украшения пола",
+      "Чтобы случайно не задеть стену или диван в комнате",
+      "Чтобы поймать инопланетян"
+    ],
+    "correctIndex": 2,
+    "explanation": "Система безопасности («Страж» или Guardian) показывает полупрозрачную сетку, если ты подходишь близко к стене.",
+    "fact": "Перед каждой игрой в VR-квантуме наставник помогает нарисовать безопасную зону на ковре.",
+    "imageHint": "🛡️",
+    "imageUrl": "https://images.unsplash.com/photo-1576633587382-13ddf37b1fc1?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "vr_k_8",
+    "category": "vr",
+    "ageGroup": "kids",
+    "question": "Как называется звук в VR, который звучит так, будто источник находится сзади или сверху?",
+    "options": [
+      "Эхо в пещере",
+      "Немое кино",
+      "Шёпот",
+      "Пространственный 3D-звук"
+    ],
+    "correctIndex": 3,
+    "explanation": "Пространственный звук рассчитывает задержку звука для правого и левого уха, создавая полное ощущение объема!",
+    "fact": "Благодаря 3D-звуку в VR можно с закрытыми глазами определить, откуда летит виртуальный мячик.",
+    "imageHint": "🎧",
+    "imageUrl": "https://images.unsplash.com/photo-1546435770-a3e426bf472b?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "vr_k_9",
+    "category": "vr",
+    "ageGroup": "kids",
+    "question": "Где, кроме игр, людям очень помогает виртуальная реальность?",
+    "options": [
+      "В обучении врачей и тренировках космонавтов",
+      "При варке макарон",
+      "Для мытья посуды",
+      "Чтобы почистить зубы"
+    ],
+    "correctIndex": 0,
+    "explanation": "Будущие хирурги тренируются делать операции в VR, а пилоты учатся сажать самолеты без риска для жизни!",
+    "fact": "Космонавты МКС тренируют выход в открытый космос в специальных VR-симуляторах невесомости.",
+    "imageHint": "🚀",
+    "imageUrl": "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "vr_k_10",
+    "category": "vr",
+    "ageGroup": "kids",
+    "question": "Что нужно делать глазам после игры в VR-шлеме, чтобы они отдохнули?",
+    "options": [
+      "Включить яркий фонарик",
+      "Сделать гимнастику для глаз и посмотреть вдаль в окно",
+      "Тереть глаза грязными руками",
+      "Смотреть в телефон"
+    ],
+    "correctIndex": 1,
+    "explanation": "Каждые 15-20 минут полезно снять шлем, поморгать и посмотреть на далекие деревья или облака за окном.",
+    "fact": "В Квантуме Добра перерывы между сессиями в VR — обязательное правило здоровья юных инженеров!",
+    "imageHint": "👀",
+    "imageUrl": "https://images.unsplash.com/photo-1470240731273-7821a6eeb6bd?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "vr_k_11",
+    "category": "vr",
+    "ageGroup": "kids",
+    "question": "Какое устройство может превратить обычный смартфон в простые очки виртуальной реальности?",
+    "options": [
+      "Стеклянная банка",
+      "Деревянная линейка",
+      "Картонный корпус с линзами (например, Cardboard)",
+      "Пластиковый стаканчик"
+    ],
+    "correctIndex": 2,
+    "explanation": "Google Cardboard — это складной картонный держатель с двумя линзами, куда вставляется смартфон с VR-видео!",
+    "fact": "Такой шлем можно собрать своими руками на мастер-классе в технопарке за 15 минут.",
+    "imageHint": "📦",
+    "imageUrl": "https://images.unsplash.com/photo-1534423861386-85a16f5d13fd?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "vr_j_1",
+    "category": "vr",
+    "ageGroup": "juniors",
+    "question": "Что означает сокращение «6DoF» в характеристиках VR-шлемов?",
+    "options": [
+      "Шесть цветных лампочек на корпусе",
+      "Поддержка шести игроков одновременно",
+      "6 часов работы от встроенной батареи",
+      "6 степеней свободы (вращение по 3 осям + перемещение в пространстве X, Y, Z)"
+    ],
+    "correctIndex": 3,
+    "explanation": "6 DoF позволяет не просто вертеть головой, но и приседать, делать шаги и наклоняться в виртуальном мире.",
+    "fact": "Шлемы 3DoF позволяли только осматриваться вокруг (Yaw, Pitch, Roll), а 6DoF дает полную физическую свободу.",
+    "imageHint": "🧭",
+    "imageUrl": "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "vr_j_2",
+    "category": "vr",
+    "ageGroup": "juniors",
+    "question": "Какая минимальная частота обновления кадров (FPS) нужна в VR для комфорта без укачивания?",
+    "options": [
+      "Не менее 72–90 кадров в секунду",
+      "1000 кадров в секунду",
+      "15 кадров в секунду",
+      "24 кадра в секунду (как в кино)"
+    ],
+    "correctIndex": 0,
+    "explanation": "Если частота кадров падает ниже 72-90 Гц, возникает задержка между движением головы и картинкой, вызывая укачивание.",
+    "fact": "В кинотеатре нам достаточно 24 fps, но в VR картинка привязана к вестибулярному аппарату нашего мозга.",
+    "imageHint": "⚡",
+    "imageUrl": "https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "vr_j_3",
+    "category": "vr",
+    "ageGroup": "juniors",
+    "question": "Какой тип трекинга использует камеры на самом шлеме без внешних датчиков на стенах?",
+    "options": [
+      "Спутниковый GPS трекинг",
+      "Inside-Out трекинг",
+      "Outside-In трекинг",
+      "Магнитный компас"
+    ],
+    "correctIndex": 1,
+    "explanation": "Inside-Out трекинг анализирует изображение с камер шлема и находит характерные точки комнаты, вычисляя координаты.",
+    "fact": "Шлемы первого поколения требовали базовых станций, а современные автономные шлемы полностью независимы.",
+    "imageHint": "📷",
+    "imageUrl": "https://images.unsplash.com/photo-1622979135240-caa6648190b6?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "vr_j_4",
+    "category": "vr",
+    "ageGroup": "juniors",
+    "question": "На каком популярном игровом движке кванторианцы чаще всего создают интерактивные VR-приложения?",
+    "options": [
+      "Блокнот Windows",
+      "Adobe Photoshop",
+      "Unity или Unreal Engine",
+      "Microsoft Excel"
+    ],
+    "correctIndex": 2,
+    "explanation": "Unity и Unreal Engine обладают мощной поддержкой VR, 3D-физики реального времени и физики взаимодействия предметов.",
+    "fact": "Стандарт OpenXR позволяет запускать проект, сделанный на Unity, на самых разных шлемах.",
+    "imageHint": "🛠️",
+    "imageUrl": "https://images.unsplash.com/photo-1556438064-2d7646166914?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "vr_j_5",
+    "category": "vr",
+    "ageGroup": "juniors",
+    "question": "Что такое IPD (межзрачковое расстояние) в настройках VR-шлема?",
+    "options": [
+      "Яркость подсветки логотипа",
+      "Скорость интернет-соединения",
+      "Громкость встроенных динамиков",
+      "Расстояние между центрами зрачков глаз в миллиметрах"
+    ],
+    "correctIndex": 3,
+    "explanation": "Правильная регулировка IPD предотвращает двоение картинки и утомление глаз при длительных сессиях.",
+    "fact": "У большинства людей IPD находится в диапазоне от 58 до 70 миллиметров.",
+    "imageHint": "📏",
+    "imageUrl": "https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "vr_j_6",
+    "category": "vr",
+    "ageGroup": "juniors",
+    "question": "Что такое технология Passthrough (сквозное видео) в современных очках смешанной реальности?",
+    "options": [
+      "Трансляция реального мира с внешних камер шлема на внутренние экраны",
+      "Пропуск сложных уровней в игре",
+      "Режим энергосбережения",
+      "Беспроводная передача файлов"
+    ],
+    "correctIndex": 0,
+    "explanation": "Благодаря цветному Passthrough пользователь видит свой стол, клавиатуру или товарищей прямо в шлеме с наложенной графикой.",
+    "fact": "Сквозное видео превращает VR-шлем в устройство смешанной реальности (MR / XR).",
+    "imageHint": "👓",
+    "imageUrl": "https://images.unsplash.com/photo-1531403009284-440f080d1e12?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "vr_j_7",
+    "category": "vr",
+    "ageGroup": "juniors",
+    "question": "Как контроллеры VR определяют нажатия кнопок без механического щелчка?",
+    "options": [
+      "Слушая дыхание игрока",
+      "С помощью емкостных сенсоров касания пальцев",
+      "Измеряя силу гравитации",
+      "С помощью барометра"
+    ],
+    "correctIndex": 1,
+    "explanation": "Емкостные сенсоры на кнопках и курках чувствуют, когда палец просто лежит на кнопке или оторван от неё.",
+    "fact": "Это позволяет аватару шевелить пальцами и показывать жесты точно так же, как вы делаете в реальности.",
+    "imageHint": "👆",
+    "imageUrl": "https://images.unsplash.com/photo-1526738549149-8e07eca6c147?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "vr_j_8",
+    "category": "vr",
+    "ageGroup": "juniors",
+    "question": "Что такое эффект «москитной сетки» (Screen-Door Effect) в старых VR-шлемах?",
+    "options": [
+      "Виртуальные комары в лесу",
+      "Царапины на защитном стекле",
+      "Видимость темных промежутков между пикселями дисплея",
+      "Шум вентилятора охлаждения"
+    ],
+    "correctIndex": 2,
+    "explanation": "Когда плотность пикселей недостаточно высока, увеличенные линзами пиксели кажутся сеткой москитки на окне.",
+    "fact": "В современных дисплеях плотность превышает 800–1200 PPI, поэтому сетка практически незаметна.",
+    "imageHint": "🪟",
+    "imageUrl": "https://images.unsplash.com/photo-1525547719571-a2d4ac8945e2?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "vr_j_9",
+    "category": "vr",
+    "ageGroup": "juniors",
+    "question": "Какой тип перемещения в VR чаще всего выбирают, чтобы избежать тошноты движения?",
+    "options": [
+      "Вращение камеры вокруг оси",
+      "Плавное непрерывное скольжение",
+      "Очень быстрое кувыркание",
+      "Телепортация по контрольным точкам"
+    ],
+    "correctIndex": 3,
+    "explanation": "Мгновенный перенос (телепортация) не создает расхождения между зрением и вестибулярным аппаратом.",
+    "fact": "Для тех, кто привык к VR, в играх включают плавное перемещение стиком (Smooth Locomotion).",
+    "imageHint": "✨",
+    "imageUrl": "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "vr_j_10",
+    "category": "vr",
+    "ageGroup": "juniors",
+    "question": "Как называется открытый стандарт веб-разработки для запуска VR и AR прямо в браузере без установки программ?",
+    "options": [
+      "WebXR",
+      "Telnet",
+      "Adobe Flash",
+      "FTP"
+    ],
+    "correctIndex": 0,
+    "explanation": "WebXR Device API позволяет сайтам передавать 3D-графику прямо в шлем с отслеживанием контроллеров.",
+    "fact": "С помощью библиотек Three.js и WebXR кванторианцы создают 3D-экскурсии прямо в веб-страницах.",
+    "imageHint": "🌐",
+    "imageUrl": "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "vr_j_11",
+    "category": "vr",
+    "ageGroup": "juniors",
+    "question": "Зачем в шлемах VR устанавливают вентилятор активного охлаждения?",
+    "options": [
+      "Создавать виртуальный ветер в игре",
+      "Охлаждать процессор и предотвращать запотевание линз от тепла лица",
+      "Для воспроизведения звука турбины",
+      "Чтобы отпугивать пыль"
+    ],
+    "correctIndex": 1,
+    "explanation": "Мощный мобильный чип генерирует тепло, а прилегание к лицу вызывает конденсат на холодных стеклах линз.",
+    "fact": "Микрокулер затягивает свежий воздух через незаметные щели корпуса, сохраняя линзы кристально прозрачными.",
+    "imageHint": "💨",
+    "imageUrl": "https://images.unsplash.com/photo-1587202372775-e229f172b9d7?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "vr_s_1",
+    "category": "vr",
+    "ageGroup": "seniors",
+    "question": "Какая предельная задержка Motion-to-Photon считается критическим порогом для отсутствия кинетоза?",
+    "options": [
+      "Около 100 миллисекунд",
+      "Ровно 1 секунда",
+      "Менее 20 миллисекунд",
+      "Более 500 миллисекунд"
+    ],
+    "correctIndex": 2,
+    "explanation": "При задержке свыше 20 мс мозг фиксирует рассогласование вестибулярного аппарата и зрительной коры.",
+    "fact": "Для минимизации задержки применяются алгоритмы репроекции (Asynchronous Timewarp / Late Latching).",
+    "imageHint": "⏱️",
+    "imageUrl": "https://images.unsplash.com/photo-1501139083538-0139583c060f?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "vr_s_2",
+    "category": "vr",
+    "ageGroup": "seniors",
+    "question": "В чем суть Foveated Rendering (фовеального рендеринга) на базе отслеживания взгляда (Eye Tracking)?",
+    "options": [
+      "Синхронизация звуковых дорожек",
+      "Перевод трехмерных полигонов в векторные кривые",
+      "Автоматическое размытие фона при ходьбе",
+      "Максимальная детализация рендерится только в зоне фовеального взгляда (fovea centralis), периферия упрощается"
+    ],
+    "correctIndex": 3,
+    "explanation": "Центральная ямка сетчатки занимает лишь ~2° поля зрения. Фовеальный рендеринг экономит до 50-70% ресурсов GPU.",
+    "fact": "Периферическое зрение воспринимает движение и мерцание, но не различает микродетализацию текстур.",
+    "imageHint": "👁️",
+    "imageUrl": "https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "vr_s_3",
+    "category": "vr",
+    "ageGroup": "seniors",
+    "question": "Какое главное преимущество Pancake-линз перед традиционными линзами Френеля?",
+    "options": [
+      "Компактная оптическая схема со сложенным поляризационным путем лучей, уменьшающая вылет шлема",
+      "Встроенная ультрафиолетовая подсветка",
+      "Полная невосприимчивость к царапинам",
+      "Увеличение яркости дисплея в 10 раз"
+    ],
+    "correctIndex": 0,
+    "explanation": "Pancake-оптика сворачивает оптическую ось в несколько слоев за счет поляризаторов, делая корпус шлема ультратонким.",
+    "fact": "Из-за оптических потерь Pancake-линз требуются сверхъяркие панели Micro-OLED или Fast-LCD с локальным затемнением.",
+    "imageHint": "🔬",
+    "imageUrl": "https://images.unsplash.com/photo-1507499739999-097706ad8914?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "vr_s_4",
+    "category": "vr",
+    "ageGroup": "seniors",
+    "question": "Какая технология Asynchronous SpaceWarp (ASW) применяется при просадках частоты кадров?",
+    "options": [
+      "Снижение разрешения текстур до 16 цветов",
+      "Синтез промежуточных кадров на основе векторов движения предыдущих кадров для поддержания 90 Гц",
+      "Отключение физического движка игры",
+      "Перезагрузка графического драйвера"
+    ],
+    "correctIndex": 1,
+    "explanation": "Если игра выдает лишь 45 fps, ASW интерполирует недостающие 45 кадров, избавляя пользователя от рывков изображения.",
+    "fact": "Подобные алгоритмы движения используются и в современных телевизорах со сглаживанием MEMC.",
+    "imageHint": "🌌",
+    "imageUrl": "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "vr_s_5",
+    "category": "vr",
+    "ageGroup": "seniors",
+    "question": "Какой индустриальный кроссплатформенный стандарт API от Khronos Group объединяет все современные VR/AR гарнитуры?",
+    "options": [
+      "DirectX 8.1",
+      "Glide API",
+      "OpenXR",
+      "Flash Player"
+    ],
+    "correctIndex": 2,
+    "explanation": "OpenXR устраняет фрагментацию рынка, позволяя разработчикам писать единый код под Oculus, SteamVR, Apple и Pico.",
+    "fact": "Khronos Group также курирует стандарты Vulkan, WebGL и 3D-формат glTF.",
+    "imageHint": "🌐",
+    "imageUrl": "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "vr_s_6",
+    "category": "vr",
+    "ageGroup": "seniors",
+    "question": "Что такое оптический эффект «God Rays» (лучи бога / блики) в линзах Френеля?",
+    "options": [
+      "Голографический ореол над головой персонажа",
+      "Попадание прямых солнечных лучей на экран",
+      "Оптическая иллюзия радуги",
+      "Паразитное рассеяние света на концентрических ступеньках линзы при высокой контрастности сцены"
+    ],
+    "correctIndex": 3,
+    "explanation": "Яркий белый текст на черном фоне в линзах Френеля образует лучевые ореолы из-за переотражения на ребрах канавок.",
+    "fact": "Переход на блинчатую (Pancake) оптику полностью устранил эффект паразитных полос Френеля.",
+    "imageHint": "✨",
+    "imageUrl": "https://images.unsplash.com/photo-1509114397022-ed747cca3f65?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "vr_s_7",
+    "category": "vr",
+    "ageGroup": "seniors",
+    "question": "Какой протокол сжатия и передачи потока чаще всего обеспечивает беспроводной PCVR стриминг через Wi-Fi 6E?",
+    "options": [
+      "HEVC (H.265) или AV1 с низкой задержкой",
+      "Несжатый AVI",
+      "Серия скриншотов BMP",
+      "MPEG-1"
+    ],
+    "correctIndex": 0,
+    "explanation": "Аппаратные энкодеры NVENC/VCE кодируют поток в H.265/AV1 с битрейтом до 200–500 Мбит/с при задержке кодека всего 3-5 мс.",
+    "fact": "Широкие каналы 160 МГц в диапазоне 6 ГГц (Wi-Fi 6E/7) обеспечивают минимальный джиттер пакетов.",
+    "imageHint": "📡",
+    "imageUrl": "https://images.unsplash.com/photo-1544197150-b99a580bb7a8?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "vr_s_8",
+    "category": "vr",
+    "ageGroup": "seniors",
+    "question": "Что такое конфликт вергенции и аккомодации (Vergence-Accommodation Conflict, VAC)?",
+    "options": [
+      "Конфликт между звуком в левом и правом наушнике",
+      "Глаза сходятся (вергенция) на виртуальном объекте, но фокусируются (аккомодация) на фиксированном расстоянии линзы",
+      "Спор между двумя игроками в мультиплеере",
+      "Разница в разрешении левого и правого глаза"
+    ],
+    "correctIndex": 1,
+    "explanation": "В обычных шлемах фокальная плоскость фиксирована на ~1.5–2 метрах, что вызывает зрительную усталость при разглядывании предметов вблизи.",
+    "fact": "Для решения VAC разрабатываются варифокальные дисплеи с подвижными линзами и светополевые (Light Field) матрицы.",
+    "imageHint": "👁️",
+    "imageUrl": "https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "vr_s_9",
+    "category": "vr",
+    "ageGroup": "seniors",
+    "question": "Как оптический трекинг контроллеров отличает левый контроллер от правого в инфракрасном диапазоне?",
+    "options": [
+      "Правый контроллер покрашен красной краской",
+      "Они работают на разных радиостанциях",
+      "Каждый светодиод мерцает на уникальной частоте или в уникальном битовом коде модуляции",
+      "Шлем угадывает случайно"
+    ],
+    "correctIndex": 2,
+    "explanation": "ИК-светодиоды на кольце контроллера модулируются по строгой временной диаграмме, позволяя камере мгновенно распознавать их ID.",
+    "fact": "Современные контроллеры без колец используют собственные встроенные мини-камеры и процессор машинного зрения.",
+    "imageHint": "💡",
+    "imageUrl": "https://images.unsplash.com/photo-1517420704952-d9f39e95b43e?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "vr_s_10",
+    "category": "vr",
+    "ageGroup": "seniors",
+    "question": "Что представляет собой технология SLAM в автономном позиционировании шлема?",
+    "options": [
+      "Быструю зарядку аккумулятора током 100А",
+      "Сжатие аудиофайлов без потерь",
+      "Протокол шифрования паролей",
+      "Одновременную локализацию шлема и построение 3D-карты окружающей среды по ключевым визуальным точкам"
+    ],
+    "correctIndex": 3,
+    "explanation": "Visual-Inertial SLAM комбинирует данные оптического потока с камер и показания высокочастотного IMU (акселерометр/гироскоп).",
+    "fact": "Частота обновления IMU составляет 1000 Гц, а камеры корректируют дрейф показаний 60 раз в секунду.",
+    "imageHint": "🗺️",
+    "imageUrl": "https://images.unsplash.com/photo-1508739773434-c26b3d09e071?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "rob_k_1",
+    "category": "robotics",
+    "ageGroup": "kids",
+    "question": "Какой датчик помогает роботу «видеть» стену впереди и не врезаться в неё?",
+    "options": [
+      "Датчик расстояния",
+      "Микрофон",
+      "Датчик вкуса",
+      "Градусник"
+    ],
+    "correctIndex": 0,
+    "explanation": "Датчик расстояния (ультразвуковой или лазерный) отправляет невидимый сигнал и измеряет время его возвращения!",
+    "fact": "Летучие мыши ориентируются в темноте точно так же — с помощью ультразвуковой эхолокации.",
+    "imageHint": "👀",
+    "imageUrl": "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "rob_k_2",
+    "category": "robotics",
+    "ageGroup": "kids",
+    "question": "Что является «мозгом» робота, где выполняются все программы?",
+    "options": [
+      "Провод",
+      "Микроконтроллер (умный блок)",
+      "Колесо",
+      "Батарейка"
+    ],
+    "correctIndex": 1,
+    "explanation": "Микроконтроллер считывает данные со всех датчиков и дает команду моторам ехать или останавливаться.",
+    "fact": "В микроконтроллере находится процессор, память и разъемы для подключения датчиков.",
+    "imageHint": "🧠",
+    "imageUrl": "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "rob_k_3",
+    "category": "robotics",
+    "ageGroup": "kids",
+    "question": "Что нужно роботу, чтобы вращать колесами или сгибать манипулятор?",
+    "options": [
+      "Колокольчики",
+      "Воздушные шарики",
+      "Электромоторы",
+      "Пружинки от ручки"
+    ],
+    "correctIndex": 2,
+    "explanation": "Электромотор превращает электрическую энергию батареи во вращательное движение вала!",
+    "fact": "В современных роботах-манипуляторах может быть больше 20 моторов для плавных движений.",
+    "imageHint": "⚙️",
+    "imageUrl": "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "rob_k_4",
+    "category": "robotics",
+    "ageGroup": "kids",
+    "question": "Как робот понимает, что ему нужно делать?",
+    "options": [
+      "Он повторяет за кошкой",
+      "Ему читают сказки",
+      "Робот догадывается сам во сне",
+      "Человек пишет для него программу"
+    ],
+    "correctIndex": 3,
+    "explanation": "Программист задает последовательность инструкций: повернуть, подождать, измерить расстояние!",
+    "fact": "Первые программы для роботов дети в Квантуме Добра создают из цветных визуальных блоков.",
+    "imageHint": "💻",
+    "imageUrl": "https://images.unsplash.com/photo-1515879218367-8466d910aaa4?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "rob_k_5",
+    "category": "robotics",
+    "ageGroup": "kids",
+    "question": "Какой датчик помогает роботу слышать хлопки в ладоши и начинать танец?",
+    "options": [
+      "Датчик звука (микрофон)",
+      "Спидометр",
+      "Датчик цвета",
+      "Барометр"
+    ],
+    "correctIndex": 0,
+    "explanation": "Микрофон преобразует звуковую волну хлопка в электрический импульс, понятный программе.",
+    "fact": "Робот-собака в робоквантуме может откликаться на голосовые команды юных инженеров!",
+    "imageHint": "🎤",
+    "imageUrl": "https://images.unsplash.com/photo-1590602847861-f357a9332bbc?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "rob_k_6",
+    "category": "robotics",
+    "ageGroup": "kids",
+    "question": "Что заменяет роботу человеческую руку для захвата кубиков?",
+    "options": [
+      "Флажок",
+      "Захват (манипулятор / клешня)",
+      "Фонарик",
+      "Лопата"
+    ],
+    "correctIndex": 1,
+    "explanation": "Механический захват с мягкими накладками аккуратно сжимает предметы под управлением мотора.",
+    "fact": "На промышленных заводах манипуляторы собирают автомобили с точностью до доли миллиметра.",
+    "imageHint": "🦾",
+    "imageUrl": "https://images.unsplash.com/photo-1618042164219-62c820f10723?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "rob_k_7",
+    "category": "robotics",
+    "ageGroup": "kids",
+    "question": "Откуда робот берет энергию для движения, если у него нет розетки?",
+    "options": [
+      "От ветра на улице",
+      "Из воздуха",
+      "Из аккумулятора (батарейки)",
+      "Из компота"
+    ],
+    "correctIndex": 2,
+    "explanation": "Внутри робота установлены литий-ионные или никелевые аккумуляторы, которые можно заряжать.",
+    "fact": "Космические марсоходы заряжают свои аккумуляторы от солнечных панелей или ядерных генераторов.",
+    "imageHint": "🔋",
+    "imageUrl": "https://images.unsplash.com/photo-1619725002198-6a689b72f41d?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "rob_k_8",
+    "category": "robotics",
+    "ageGroup": "kids",
+    "question": "Какой бытовой робот есть сегодня дома у многих людей для уборки пола?",
+    "options": [
+      "Робот-будильник",
+      "Робот-балерина",
+      "Робот-садовник",
+      "Робот-пылесос"
+    ],
+    "correctIndex": 3,
+    "explanation": "Робот-пылесос имеет датчики стен, датчики падения с лестниц и вращающиеся щетки с мотором.",
+    "fact": "Он строит карту комнат и сам возвращается на базу для подзарядки аккумулятора.",
+    "imageHint": "🧹",
+    "imageUrl": "https://images.unsplash.com/photo-1518640467707-6811f4a6ab73?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "rob_k_9",
+    "category": "robotics",
+    "ageGroup": "kids",
+    "question": "Что загорается на роботе разными цветами (красный, зеленый, синий), сообщая о его статусе?",
+    "options": [
+      "Светодиоды (LED)",
+      "Блестки",
+      "Свечки",
+      "Спички"
+    ],
+    "correctIndex": 0,
+    "explanation": "Светодиоды потребляют мало энергии и ярко светят, показывая готовность робота или ошибку.",
+    "fact": "С помощью RGB-светодиода робот может показать более 16 миллионов оттенков цветов.",
+    "imageHint": "🚨",
+    "imageUrl": "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "rob_k_10",
+    "category": "robotics",
+    "ageGroup": "kids",
+    "question": "Для чего на колеса робота надевают резиновые шины с протектором?",
+    "options": [
+      "Чтобы колесо было красивее",
+      "Чтобы колеса не скользили по гладкому полу (для лучшего сцепления)",
+      "Чтобы робот прыгал выше потолка",
+      "Чтобы колеса пахли резиной"
+    ],
+    "correctIndex": 1,
+    "explanation": "Резина обладает высоким коэффициентом трения, поэтому робот быстро разгоняется и точно тормозит.",
+    "fact": "В соревновательном робо-сумо используют колеса из специального липкого силикона!",
+    "imageHint": "🛞",
+    "imageUrl": "https://images.unsplash.com/photo-1578632767115-351597cf2477?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "rob_k_11",
+    "category": "robotics",
+    "ageGroup": "kids",
+    "question": "Какое устройство нажимается при физическом столкновении с предметом?",
+    "options": [
+      "Антенна",
+      "Зеркало",
+      "Датчик касания (кнопка-бампер)",
+      "Громкоговоритель"
+    ],
+    "correctIndex": 2,
+    "explanation": "При ударе кнопка замыкает контакт, и программа мгновенно дает команду отъехать назад.",
+    "fact": "Бамперы касания спасают роботов от падений со стола и ударов о ножки стульев.",
+    "imageHint": "🔘",
+    "imageUrl": "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "rob_j_1",
+    "category": "robotics",
+    "ageGroup": "juniors",
+    "question": "Какой алгоритм используют роботы для плавного и точного движения вдоль черной линии?",
+    "options": [
+      "Таблица умножения",
+      "Поиск в браузере",
+      "Случайный генератор чисел",
+      "ПИД-регулятор (Пропорционально-Интегрально-Дифференциальный)"
+    ],
+    "correctIndex": 3,
+    "explanation": "ПИД-регулятор непрерывно рассчитывает ошибку отклонения от линии и плавно подстраивает скорость моторов.",
+    "fact": "Простое релейное управление («влево-вправо») вызывает рывки, а ПИД делает движение быстрым и ровным.",
+    "imageHint": "📈",
+    "imageUrl": "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "rob_j_2",
+    "category": "robotics",
+    "ageGroup": "juniors",
+    "question": "Чем сервопривод принципиально отличается от обычного мотора постоянного тока?",
+    "options": [
+      "Сервопривод поворачивает вал на строго заданный угол и удерживает его",
+      "Сервопривод может крутиться только со скоростью света",
+      "Сервопривод работает без проводов и батареек",
+      "У него нет шестеренок"
+    ],
+    "correctIndex": 0,
+    "explanation": "Внутри сервопривода есть мотор, редуктор, потенциометр обратной связи и плата управления положением.",
+    "fact": "Углом сервопривода управляют сигналом ШИМ (PWM) с длительностью импульса от 1 до 2 миллисекунд.",
+    "imageHint": "🎯",
+    "imageUrl": "https://images.unsplash.com/photo-1581092162384-8987c1d64718?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "rob_j_3",
+    "category": "robotics",
+    "ageGroup": "juniors",
+    "question": "Что измеряет датчик-энкодер, установленный на валу электромотора?",
+    "options": [
+      "Напряжение в электросети города",
+      "Количество совершенных оборотов и угол поворота колеса",
+      "Громкость работы редуктора",
+      "Температуру воздуха в комнате"
+    ],
+    "correctIndex": 1,
+    "explanation": "Энкодер считает импульсы от магнита или щелевого диска, позволяя роботу проехать ровно заданное расстояние в см.",
+    "fact": "Оптические энкодеры могут регистрировать тысячи тиков за один единственный оборот вала.",
+    "imageHint": "🔢",
+    "imageUrl": "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "rob_j_4",
+    "category": "robotics",
+    "ageGroup": "juniors",
+    "question": "В чем уникальная особенность всенаправленных колес Mecanum (колеса Илона)?",
+    "options": [
+      "Они никогда не изнашиваются",
+      "Они могут летать над землей",
+      "Ролики под углом 45° позволяют платформе двигаться боком и по диагонали без поворота",
+      "Они светятся в темноте без батареек"
+    ],
+    "correctIndex": 2,
+    "explanation": "Комбинируя направления вращения 4 колес Mecanum, робот перемещается в любую сторону мгновенно.",
+    "fact": "Платформы Mecanum широко применяются на роботизированных складах и в соревнованиях First Tech Challenge.",
+    "imageHint": "🔘",
+    "imageUrl": "https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "rob_j_5",
+    "category": "robotics",
+    "ageGroup": "juniors",
+    "question": "Какая микросхема («H-мост» / драйвер двигателей) позволяет менять направление вращения мотора?",
+    "options": [
+      "Светодиод",
+      "Резистор на 220 Ом",
+      "Кварцевый резонатор",
+      "Драйвер двигателей (например, L298N или TB6612FNG)"
+    ],
+    "correctIndex": 3,
+    "explanation": "H-мост из 4 транзисторов переключает полярность питания мотора и регулирует скорость через ШИМ.",
+    "fact": "Напрямую подключать мотор к пинам микроконтроллера нельзя — мотор сожжет чип большим током.",
+    "imageHint": "⚡",
+    "imageUrl": "https://images.unsplash.com/photo-1608564697071-ddf911d81370?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "rob_j_6",
+    "category": "robotics",
+    "ageGroup": "juniors",
+    "question": "Какой датчик позволяет роботу-балансиру стоять на двух колесах, как гироскутер?",
+    "options": [
+      "IMU (инерциальный модуль: гироскоп + акселерометр)",
+      "Датчик освещенности",
+      "Барометр давления",
+      "Датчик влажности почвы"
+    ],
+    "correctIndex": 0,
+    "explanation": "Акселерометр измеряет гравитацию, а гироскоп — скорость падения. Алгоритм фильтрации удерживает баланс.",
+    "fact": "Популярный чип MPU-6050 объединяет 3-осевой гироскоп и 3-осевой акселерометр в одном мини-чипе.",
+    "imageHint": "🧭",
+    "imageUrl": "https://images.unsplash.com/photo-1508739773434-c26b3d09e071?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "rob_j_7",
+    "category": "robotics",
+    "ageGroup": "juniors",
+    "question": "Что такое ШИМ (Широтно-Импульсная Модуляция / PWM)?",
+    "options": [
+      "Специальная батарейка",
+      "Способ управления мощностью мотора или яркостью путем быстрого включения и выключения сигнала",
+      "Провод для подключения монитора",
+      "Музыкальная радиостанция"
+    ],
+    "correctIndex": 1,
+    "explanation": "Меняя коэффициент заполнения (duty cycle) импульсов, мы регулируем среднее напряжение на моторе от 0 до 100%.",
+    "fact": "Человеческий глаз не видит мерцания светодиода при частоте ШИМ свыше 100-1000 Гц.",
+    "imageHint": "📊",
+    "imageUrl": "https://images.unsplash.com/photo-1517420704952-d9f39e95b43e?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "rob_j_8",
+    "category": "robotics",
+    "ageGroup": "juniors",
+    "question": "Какой интерфейс связи чаще всего используется для обмена данными между Arduino и компьютером?",
+    "options": [
+      "Спутниковая антенна",
+      "VGA",
+      "UART (последовательный порт Serial / USB)",
+      "HDMI"
+    ],
+    "correctIndex": 2,
+    "explanation": "Через UART по двум линиям (TX — передача, RX — прием) робот передает показания датчиков в монитор порта.",
+    "fact": "Скорость 115200 бит/с позволяет передавать данные телеметрии сотни раз в секунду.",
+    "imageHint": "🔌",
+    "imageUrl": "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "rob_j_9",
+    "category": "robotics",
+    "ageGroup": "juniors",
+    "question": "В чем преимущество датчика расстояния Time-of-Flight (ToF) перед обычным ультразвуковым?",
+    "options": [
+      "Он издает громкий свист",
+      "Он нагревает предметы",
+      "Работает только под водой",
+      "Измеряет время полета фотонов лазера, давая высокую точность без отражения от мягких тканей"
+    ],
+    "correctIndex": 3,
+    "explanation": "ToF-датчики (например, VL53L0X) измеряют расстояние лучом невидимого лазера со скоростью света за наносекунды.",
+    "fact": "Ультразвук может поглощаться тканью штор или ковра, а лазерный ToF дает стабильный результат.",
+    "imageHint": "🎯",
+    "imageUrl": "https://images.unsplash.com/photo-1507499739999-097706ad8914?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "rob_j_10",
+    "category": "robotics",
+    "ageGroup": "juniors",
+    "question": "Зачем в электрических схемах роботов последовательно со светодиодом ставят резистор?",
+    "options": [
+      "Ограничить силу тока, чтобы светодиод не перегорел",
+      "Для увеличения скорости моторов",
+      "Чтобы светодиод светил другим цветом",
+      "Чтобы схема быстрее грелась"
+    ],
+    "correctIndex": 0,
+    "explanation": "Без токоограничивающего резистора светодиод пропустит слишком большой ток и мгновенно сгорит.",
+    "fact": "Номинал рассчитывается по закону Ома: R = (Vпит - Vдиода) / I.",
+    "imageHint": "💡",
+    "imageUrl": "https://images.unsplash.com/photo-1563770660941-20978e870e26?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "rob_j_11",
+    "category": "robotics",
+    "ageGroup": "juniors",
+    "question": "Какой популярный микрокомпьютер с операционной системой Linux часто ставят на продвинутых роботов?",
+    "options": [
+      "Игровая приставка Dendy",
+      "Raspberry Pi",
+      "Калькулятор «Электроника»",
+      "Стиральная машина"
+    ],
+    "correctIndex": 1,
+    "explanation": "Raspberry Pi имеет 4-ядерный процессор, USB-порты для камер и запускает компьютерное зрение на OpenCV.",
+    "fact": "В связке с микроконтроллером Raspberry Pi берет на себя «умные» вычисления, а контроллер — моторы.",
+    "imageHint": "🍓",
+    "imageUrl": "https://images.unsplash.com/photo-1517077304055-6e89abbf09b0?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "rob_s_1",
+    "category": "robotics",
+    "ageGroup": "seniors",
+    "question": "Какая задача в мобильной робототехнике формулируется как одновременное построение карты и позиционирование (SLAM)?",
+    "options": [
+      "System Level Automation Mechanism",
+      "Software Logic Authentication Module",
+      "Simultaneous Localization and Mapping",
+      "Synchronous Linear Array Manipulation"
+    ],
+    "correctIndex": 2,
+    "explanation": "SLAM решает замкнутый круг: для построения карты нужно знать координаты, а для координат нужна карта.",
+    "fact": "SLAM используется в беспилотниках Яндекса, складских роботах KUKA и марсоходах NASA Curiosity.",
+    "imageHint": "🗺️",
+    "imageUrl": "https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "rob_s_2",
+    "category": "robotics",
+    "ageGroup": "seniors",
+    "question": "В чем математическая суть задачи инверсной (обратной) кинематики 6-осевого манипулятора?",
+    "options": [
+      "Вычисление теплоемкости охлаждающей жидкости",
+      "Измерение температуры процессорного кристалла",
+      "Расчет электрического сопротивления проводов обмоток",
+      "Определение углов в шарнирах звеньев для достижения схватом заданной точки (X, Y, Z, Roll, Pitch, Yaw)"
+    ],
+    "correctIndex": 3,
+    "explanation": "Прямая кинематика тривиальна, а обратная требует решения нелинейной системы тригонометрических уравнений через якобианы.",
+    "fact": "Для описания кинематических пар традиционно применяются параметры Денавита-Хартенберга (DH-parameters).",
+    "imageHint": "🦾",
+    "imageUrl": "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "rob_s_3",
+    "category": "robotics",
+    "ageGroup": "seniors",
+    "question": "Почему в промышленных роботах и автомобилях стандартом связи является дифференциальная шина CAN?",
+    "options": [
+      "Высокая помехоустойчивость за счет дифференциальной пары (CAN_H и CAN_L) и аппаратный арбитраж сообщений",
+      "Она работает на солнечной энергии",
+      "Она передает видео в разрешении 8K",
+      "Она не требует проводов вообще"
+    ],
+    "correctIndex": 0,
+    "explanation": "Электромагнитная наводка действует на оба провода одинаково, поэтому разность напряжений остается неизменной.",
+    "fact": "Шина CAN была разработана компанией Robert Bosch GmbH для автопрома и стала стандартом ISO 11898.",
+    "imageHint": "🔌",
+    "imageUrl": "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "rob_s_4",
+    "category": "robotics",
+    "ageGroup": "seniors",
+    "question": "Какой фреймворк с издательско-подписной архитектурой (Pub/Sub) является стандартом современной робототехники?",
+    "options": [
+      "Symbian 9.1",
+      "ROS / ROS 2 (Robot Operating System)",
+      "Windows XP Embedded",
+      "DOS 6.22"
+    ],
+    "correctIndex": 1,
+    "explanation": "ROS 2 использует промышленный протокол DDS (Data Distribution Service) с контролем качества доставки QoS.",
+    "fact": "Узлы ROS могут быть написаны на C++ и Python, обмениваясь сообщениями в топиках в реальном времени.",
+    "imageHint": "🐧",
+    "imageUrl": "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "rob_s_5",
+    "category": "robotics",
+    "ageGroup": "seniors",
+    "question": "Какой математический фильтр оптимально объединяет шумные данные одометрии, IMU и лазерного дальномера?",
+    "options": [
+      "Метод Монте-Карло для рулетки",
+      "Алгоритм сжатия ZIP",
+      "Расширенный фильтр Калмана (EKF) или Particle Filter",
+      "Сортировка пузырьком"
+    ],
+    "correctIndex": 2,
+    "explanation": "Фильтр Калмана строит предсказание состояния на основе физической модели и корректирует его с учетом матриц ковариации шума.",
+    "fact": "Фильтр Калмана рассчитывал траекторию посадки лунного модуля Аполлон-11 в 1969 году.",
+    "imageHint": "📐",
+    "imageUrl": "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "rob_s_6",
+    "category": "robotics",
+    "ageGroup": "seniors",
+    "question": "Чем шаговый двигатель отличается от бесколлекторного двигателя (BLDC)?",
+    "options": [
+      "Шаговый двигатель вращается только со скоростью 10 000 об/мин",
+      "BLDC двигатель не имеет магнитов",
+      "Шаговый двигатель работает от бензина",
+      "Шаговый двигатель делает дискретные микрошаги за счет многополюсного ротора и удерживает момент в покое"
+    ],
+    "correctIndex": 3,
+    "explanation": "Шаговые моторы с микрошаговым делением (1/16, 1/32) идеальны для 3D-принтеров и станков ЧПУ без датчиков положения.",
+    "fact": "BLDC двигатели обладают высоким КПД и мощностью на единицу веса, поэтому их ставят на дроны и электрокары.",
+    "imageHint": "⚙️",
+    "imageUrl": "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "rob_s_7",
+    "category": "robotics",
+    "ageGroup": "seniors",
+    "question": "Какой оптический сенсор вращается со скоростью 5–15 Гц и строит массив расстояний в плоскости на 360 градусов?",
+    "options": [
+      "Лидар (2D/3D LiDAR)",
+      "Барометр",
+      "Веб-камера VGA",
+      "Фоторезистор"
+    ],
+    "correctIndex": 0,
+    "explanation": "Лидар сканирует пространство импульсным лазером и возвращает облако точек (Point Cloud) с миллиметровой точностью.",
+    "fact": "Кванторианцы используют лидары RPLIDAR для создания автономных роботов, ориентирующихся в коридорах технопарка.",
+    "imageHint": "📡",
+    "imageUrl": "https://images.unsplash.com/photo-1508739773434-c26b3d09e071?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "rob_s_8",
+    "category": "robotics",
+    "ageGroup": "seniors",
+    "question": "Что такое Field Oriented Control (FOC / векторное управление) бесколлекторными двигателями?",
+    "options": [
+      "Автоматическое включение фар при сумерках",
+      "Управление пространственным вектором магнитного потока статора перпендикулярно полю ротора для макс. КПД и плавности",
+      "Ориентация робота по спутникам ГЛОНАСС",
+      "Управление скоростью через реостат"
+    ],
+    "correctIndex": 1,
+    "explanation": "FOC с преобразованиями Кларк и Парка устраняет пульсации крутящего момента и позволяет точно позиционировать вал BLDC.",
+    "fact": "Векторное управление превращает бесколлекторные моторы в сверхбыстрые и тихие квазипрямые сервоприводы для роботов-собак.",
+    "imageHint": "🔄",
+    "imageUrl": "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "rob_s_9",
+    "category": "robotics",
+    "ageGroup": "seniors",
+    "question": "Для чего в мобильных роботах с колесной базой применяется модель дифференциального привода (Differential Drive)?",
+    "options": [
+      "Передача крутящего момента через карданный вал",
+      "Торможение робота парашютом",
+      "Кинематика управления движением платформы за счет разницы угловых скоростей левого и правого колес",
+      "Амортизация ударов на бездорожье"
+    ],
+    "correctIndex": 2,
+    "explanation": "Если оба колеса вращаются вперед — робот едет прямо, если колеса вращаются навстречу друг другу — робот крутится на месте.",
+    "fact": "Радиус кривизны поворота рассчитывается по формуле R = (L / 2) * (V_right + V_left) / (V_right - V_left).",
+    "imageHint": "🛞",
+    "imageUrl": "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "rob_s_10",
+    "category": "robotics",
+    "ageGroup": "seniors",
+    "question": "Какой тип нейросетей чаще всего обрабатывает видеопоток в задачах детекции объектов (людей, дорожных знаков) на борту робота?",
+    "options": [
+      "Алгоритм Дейкстры",
+      "Перцептрон Розенблатта 1957 года",
+      "Генератор случайных чисел",
+      "Сверточные нейросети (CNN, архитектуры YOLO / MobileNet)"
+    ],
+    "correctIndex": 3,
+    "explanation": "Сети YOLO (You Only Look Once) выполняют предсказание рамок и классов объектов за один прямой проход на скорости до 60 FPS.",
+    "fact": "Для ускорения нейросетей на роботах устанавливают аппаратные тензорные сопроцессоры (NVIDIA Jetson, Coral TPU).",
+    "imageHint": "🧠",
+    "imageUrl": "https://images.unsplash.com/photo-1555255707-c07966088b7b?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "lego_k_1",
+    "category": "lego",
+    "ageGroup": "kids",
+    "question": "Как называются круглые детали с зубчиками, которые цепляются друг за друга?",
+    "options": [
+      "Шестерёнки (зубчатые колёса)",
+      "Балки",
+      "Кубики 2x4",
+      "Оси"
+    ],
+    "correctIndex": 0,
+    "explanation": "Зубчатые колёса передают вращение от одного мотора к другим частям механизма!",
+    "fact": "Если соединить большую шестерню с маленькой, скорость вращения заметно увеличится.",
+    "imageHint": "⚙️",
+    "imageUrl": "https://images.unsplash.com/photo-1585366119957-e9730b6d0f60?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "lego_k_2",
+    "category": "lego",
+    "ageGroup": "kids",
+    "question": "Какая деталь LEGO помогает соединить две шестеренки, проходя сквозь их центр?",
+    "options": [
+      "Шина",
+      "Ось (вал)",
+      "Тарелочка",
+      "Наклейка"
+    ],
+    "correctIndex": 1,
+    "explanation": "Крестообразная ось LEGO передает крутящий момент от мотора прямо на колесо или шестерню.",
+    "fact": "Длина осей в LEGO Technic традиционно измеряется в «модулях» (количестве отверстий в стандартной балке).",
+    "imageHint": "📏",
+    "imageUrl": "https://images.unsplash.com/photo-1587654780291-39c9404d746b?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "lego_k_3",
+    "category": "lego",
+    "ageGroup": "kids",
+    "question": "Какая геометрическая фигура делает башню или мост из LEGO самыми прочными и не дает шататься?",
+    "options": [
+      "Круг",
+      "Прямоугольник",
+      "Треугольник",
+      "Звездочка"
+    ],
+    "correctIndex": 2,
+    "explanation": "Треугольник — самая жесткая геометрическая фигура. Настоящие мосты и краны строят из треугольных ферм!",
+    "fact": "Прямоугольную рамку легко перекосить нажатием, а треугольная держит форму намертво.",
+    "imageHint": "📐",
+    "imageUrl": "https://images.unsplash.com/photo-1545558014-8692077e9b5c?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "lego_k_4",
+    "category": "lego",
+    "ageGroup": "kids",
+    "question": "Для чего в наборах LEGO WeDo и SPIKE нужен датчик наклона?",
+    "options": [
+      "Чтобы измерять громкость музыки",
+      "Чтобы охлаждать суп",
+      "Чтобы робот мыл руки",
+      "Чтобы знать, куда наклонен робот (вверх, вниз, вбок)"
+    ],
+    "correctIndex": 3,
+    "explanation": "Датчик наклона работает как электронный уровень, сообщая роботу его положение в пространстве.",
+    "fact": "С его помощью можно сделать руль-штурвал для управления виртуальным самолетом!",
+    "imageHint": "🎛️",
+    "imageUrl": "https://images.unsplash.com/photo-1580927752452-89d86da3fa0a?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "lego_k_5",
+    "category": "lego",
+    "ageGroup": "kids",
+    "question": "Как называется специальный инструмент для легкого разделения крепко сцепленных кубиков LEGO?",
+    "options": [
+      "Разделитель кубиков (сепаратор)",
+      "Ножницы",
+      "Молоток",
+      "Отвёртка"
+    ],
+    "correctIndex": 0,
+    "explanation": "Оранжевый или бирюзовый разделитель с клином и штифтом бережет ногти и детали от повреждений!",
+    "fact": "Сепаратор LEGO изобрели еще в 1988 году, и с тех пор его дизайн улучшался трижды.",
+    "imageHint": "🛠️",
+    "imageUrl": "https://images.unsplash.com/photo-1585366119957-e9730b6d0f60?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "lego_k_6",
+    "category": "lego",
+    "ageGroup": "kids",
+    "question": "Что передает вращение между двумя шкивами с помощью резинового колечка?",
+    "options": [
+      "Магнит",
+      "Ременная передача",
+      "Липкая лента",
+      "Шнурок от ботинок"
+    ],
+    "correctIndex": 1,
+    "explanation": "Резиновый пассик передает движение мягко. Если механизм заклинит, ремень просто проскользнет и мотор не сгорит!",
+    "fact": "Ременные передачи используются в вентиляторах и стиральных машинах.",
+    "imageHint": "⭕",
+    "imageUrl": "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "lego_k_7",
+    "category": "lego",
+    "ageGroup": "kids",
+    "question": "Какой конструктор LEGO знакомит младших школьников с первыми механизмами и простыми машинами?",
+    "options": [
+      "Набор кастрюль",
+      "Деревянные бруски",
+      "LEGO Education WeDo 2.0",
+      "Пластилин"
+    ],
+    "correctIndex": 2,
+    "explanation": "LEGO WeDo включает СмартХаб с Bluetooth, электромотор, датчики движения и наклона.",
+    "fact": "Программы в WeDo составляются из простых графических пиктограмм со стрелочками и цифрами.",
+    "imageHint": "🧩",
+    "imageUrl": "https://images.unsplash.com/photo-1596461404969-9ae70f2830c1?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "lego_k_8",
+    "category": "lego",
+    "ageGroup": "kids",
+    "question": "Как сделать робота на колесах более устойчивым, чтобы он не опрокидывался на поворотах?",
+    "options": [
+      "Надуть на робота воздушный шар",
+      "Снять все колеса",
+      "Сделать робота максимально высоким и узким",
+      "Поставить батарейный блок ниже, а колеса расставить шире"
+    ],
+    "correctIndex": 3,
+    "explanation": "Низкий центр тяжести и широкая колесная база делают робота стабильным на любых виражах.",
+    "fact": "Гоночные болиды Формулы-1 строят максимально низкими к асфальту ровно по этому принципу!",
+    "imageHint": "🏎️",
+    "imageUrl": "https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "lego_k_9",
+    "category": "lego",
+    "ageGroup": "kids",
+    "question": "Как называются детали с круглыми отверстиями без зубчиков, из которых строят раму робота LEGO Technic?",
+    "options": [
+      "Балки (лифтармы)",
+      "Тарелочки",
+      "Оси",
+      "Шестеренки"
+    ],
+    "correctIndex": 0,
+    "explanation": "Балки соединяются соединительными штифтами (пинами) и образуют прочный скелет любого робота.",
+    "fact": "Балки Technic бывают прямыми, Г-образными, Т-образными и изогнутыми под углом 90 и 53 градуса.",
+    "imageHint": "🧱",
+    "imageUrl": "https://images.unsplash.com/photo-1587654780291-39c9404d746b?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "lego_k_10",
+    "category": "lego",
+    "ageGroup": "kids",
+    "question": "Какая передача превращает вращение мотора в движение груза вверх и вниз на тросике?",
+    "options": [
+      "Шина",
+      "Блок и ворот (лебёдка с катушкой)",
+      "Зеркало",
+      "Вентилятор"
+    ],
+    "correctIndex": 1,
+    "explanation": "Вращаясь, катушка наматывает капроновую нить, поднимая стрелу подъемного крана.",
+    "fact": "Используя подвижный блок, можно в два раза уменьшить усилие, необходимое для подъема тяжести!",
+    "imageHint": "🏗️",
+    "imageUrl": "https://images.unsplash.com/photo-1545558014-8692077e9b5c?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "lego_k_11",
+    "category": "lego",
+    "ageGroup": "kids",
+    "question": "Какого цвета соединительный штифт (пин) в LEGO Technic вращается свободно внутри балки без трения?",
+    "options": [
+      "Черный штифт",
+      "Красный фиксатор",
+      "Серый или бежевый гладкий штифт",
+      "Синий штифт с насечками трения"
+    ],
+    "correctIndex": 2,
+    "explanation": "Гладкие штифты (frictionless) используются в качестве осей шарниров, где требуется свободное качание.",
+    "fact": "Штифты с трением (черные и синие) имеют выступы, которые намертво скрепляют две балки между собой.",
+    "imageHint": "📍",
+    "imageUrl": "https://images.unsplash.com/photo-1585366119957-e9730b6d0f60?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "lego_k_12",
+    "category": "lego",
+    "ageGroup": "kids",
+    "question": "Как называется главный «мозг» (умный блок с кнопками и экраном) в роботах LEGO Mindstorms EV3?",
+    "options": [
+      "Микроволновка",
+      "Флешка",
+      "Джойстик",
+      "Модуль (блок) EV3 (EV3 Brick)"
+    ],
+    "correctIndex": 3,
+    "explanation": "Интеллектуальный блок EV3 — это главный микрокомпьютер, который управляет моторами и читает показания датчиков.",
+    "fact": "Название EV3 расшифровывается как «Evolution 3» — третье поколение роботов серии LEGO Mindstorms.",
+    "imageHint": "🧠",
+    "imageUrl": "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "lego_k_13",
+    "category": "lego",
+    "ageGroup": "kids",
+    "question": "Какими «глазами» робот LEGO Mindstorms EV3 может видеть препятствие впереди и не врезаться в стену?",
+    "options": [
+      "Ультразвуковой датчик расстояния",
+      "Обычное зеркальце",
+      "Колесо",
+      "Фонарик"
+    ],
+    "correctIndex": 0,
+    "explanation": "Ультразвуковой датчик EV3 посылает звуковую волну (эхолокацию как у летучей мыши) и засекает время ее возвращения.",
+    "fact": "«Глазки» датчика подсвечиваются красными светодиодами, когда он готов к работе.",
+    "imageHint": "🦇",
+    "imageUrl": "https://images.unsplash.com/photo-1535378620166-273708d44e4c?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "lego_k_14",
+    "category": "lego",
+    "ageGroup": "kids",
+    "question": "Что произойдет, когда робот EV3 наедет на стену и нажмет датчик касания (кнопку)?",
+    "options": [
+      "Датчик выключит весь свет в комнате",
+      "Робот поймет по сигналу кнопки, что столкнулся, и сможет отъехать назад",
+      "Робот растает",
+      "Робот лопнет"
+    ],
+    "correctIndex": 1,
+    "explanation": "Датчик касания EV3 работает как сенсорный бампер автомобиля: нажал — отъехал назад и повернул!",
+    "fact": "Датчик касания EV3 различает три состояния: нажат, отпущен и один щелчок (клик).",
+    "imageHint": "🔘",
+    "imageUrl": "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "lego_j_1",
+    "category": "lego",
+    "ageGroup": "juniors",
+    "question": "Ведущая шестерня имеет 8 зубьев, а ведомая — 24 зуба. Как изменятся скорость и крутящий момент?",
+    "options": [
+      "Скорость вырастет в 3 раза, сила упадет",
+      "Механизм сразу заклинит",
+      "Скорость уменьшится в 3 раза, а крутящий момент (сила) вырастет в 3 раза",
+      "Ни скорость, ни сила не изменятся"
+    ],
+    "correctIndex": 2,
+    "explanation": "Передаточное отношение 24:8 = 3:1. Это понижающий редуктор — выигрываем в силе, жертвуя скоростью.",
+    "fact": "Понижающие передачи незаменимы для роботов-тягачей и подъемников тяжелых грузов.",
+    "imageHint": "⚙️",
+    "imageUrl": "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "lego_j_2",
+    "category": "lego",
+    "ageGroup": "juniors",
+    "question": "Какой тип передачи в LEGO Technic передает вращение под углом 90 градусов и самоблокируется при обратном ходе?",
+    "options": [
+      "Цилиндрическая передача",
+      "Цепная передача",
+      "Ременная передача",
+      "Червячная передача"
+    ],
+    "correctIndex": 3,
+    "explanation": "Червяк может вращать шестерню, но шестерня не способна провернуть червяк назад — поднятый груз никогда не упадет сам!",
+    "fact": "Червячная передача идеальна для автомобильных домкратов и роботизированных лифтов.",
+    "imageHint": "🔩",
+    "imageUrl": "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "lego_j_3",
+    "category": "lego",
+    "ageGroup": "juniors",
+    "question": "Зачем в автомобилях из LEGO Technic ставят дифференциал между ведущими колесами оси?",
+    "options": [
+      "Чтобы внешнее колесо в повороте могло вращаться быстрее внутреннего без пробуксовки",
+      "Чтобы снизить шум мотора",
+      "Чтобы машина могла ездить назад",
+      "Для охлаждения аккумулятора"
+    ],
+    "correctIndex": 0,
+    "explanation": "В повороте внешнее колесо проходит большую дугу, чем внутреннее. Дифференциал перераспределяет вращение.",
+    "fact": "Корпус дифференциала LEGO содержит три маленькие конические шестерни-сателлиты.",
+    "imageHint": "🚗",
+    "imageUrl": "https://images.unsplash.com/photo-1580273916550-e323be2ae537?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "lego_j_4",
+    "category": "lego",
+    "ageGroup": "juniors",
+    "question": "Какой встроенный датчик в смарт-хабе LEGO Education SPIKE Prime измеряет угловые скорости и ускорения по 6 осям?",
+    "options": [
+      "Счетчик Гейгера",
+      "6-осевой гироскоп/акселерометр (IMU)",
+      "Барометр",
+      "Датчик влажности почвы"
+    ],
+    "correctIndex": 1,
+    "explanation": "Хаб SPIKE Prime определяет ориентацию, наклоны на углы рыскания, крена и тангажа, а также удары и свободное падение.",
+    "fact": "Благодаря этому датчику робот может автоматически поворачивать ровно на 90 градусов без проскальзывания колес.",
+    "imageHint": "🧭",
+    "imageUrl": "https://images.unsplash.com/photo-1508739773434-c26b3d09e071?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "lego_j_5",
+    "category": "lego",
+    "ageGroup": "juniors",
+    "question": "Какая передача превращает вращательное движение шестерни в поступательное (линейное) движение рейки?",
+    "options": [
+      "Планетарный редуктор",
+      "Шкив",
+      "Реечная передача (зубчатая рейка)",
+      "Цепная передача"
+    ],
+    "correctIndex": 2,
+    "explanation": "Зубчатая рейка скользит влево и вправо при вращении шестерни. Так устроено рулевое управление автомобилей!",
+    "fact": "В наборах LEGO Technic есть изогнутые рейки для создания поворотных столов башенных кранов.",
+    "imageHint": "📏",
+    "imageUrl": "https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "lego_j_6",
+    "category": "lego",
+    "ageGroup": "juniors",
+    "question": "Для чего в механизмах LEGO применяется белая шестерня с трещоткой (предохранительная муфта 24 зуба)?",
+    "options": [
+      "Она меняет цвет от температуры",
+      "Она светится в темноте",
+      "Она крутится только в одну сторону",
+      "Она проскальзывает со щелчками при перегрузке, защищая мотор и оси от поломки"
+    ],
+    "correctIndex": 3,
+    "explanation": "Внутри белой муфты установлена пружина, которая расцепляет зубья при превышении безопасного крутящего момента.",
+    "fact": "Ее обязательно ставят в захваты манипуляторов, чтобы мотор не сгорел при смыкании клешней.",
+    "imageHint": "⚪",
+    "imageUrl": "https://images.unsplash.com/photo-1585366119957-e9730b6d0f60?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "lego_j_7",
+    "category": "lego",
+    "ageGroup": "juniors",
+    "question": "Какие шестерни в LEGO имеют коническую форму зубьев для передачи вращения под прямым углом 90 градусов?",
+    "options": [
+      "Конические шестерни (Bevel gears)",
+      "Шкивы",
+      "Храповики",
+      "Прямозубые шестерни"
+    ],
+    "correctIndex": 0,
+    "explanation": "Конические шестерни соединяются под углом 90° и передают вращение с вертикальной оси на горизонтальную ось колес.",
+    "fact": "В LEGO есть шестерни с двойными зубьями (Double Bevel), которые могут работать и как прямозубые, и как конические.",
+    "imageHint": "📐",
+    "imageUrl": "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "lego_j_8",
+    "category": "lego",
+    "ageGroup": "juniors",
+    "question": "Как называется механизм, который позволяет валу вращаться только в одном направлении и блокирует обратный ход?",
+    "options": [
+      "Реостат",
+      "Храповой механизм (храповик с собачкой)",
+      "Маховик",
+      "Дифференциал"
+    ],
+    "correctIndex": 1,
+    "explanation": "Косые зубья колеса храповика приподнимают подпружиненную собачку в одну сторону, но упираются в нее при реверсе.",
+    "fact": "Храповики используются в механических часах, лебедках и альпинистских карабинах.",
+    "imageHint": "🔒",
+    "imageUrl": "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "lego_j_9",
+    "category": "lego",
+    "ageGroup": "juniors",
+    "question": "Чем шаровое поворотное колесо (роликовая опора) выгодно отличается от обычного колеса на опорной стойке тележки?",
+    "options": [
+      "Оно не касается пола",
+      "Оно генерирует электричество",
+      "Оно может свободно катиться в любом направлении без сопротивления и не требует поворота рулем",
+      "Оно может развивать скорость 100 км/ч"
+    ],
+    "correctIndex": 2,
+    "explanation": "Шаровая опора выполняет роль третьей точки устойчивости для двухколесного дифференциального робота.",
+    "fact": "В соревновательных регламентах WRO и Robofest шаровые металлические ролики — золотой стандарт.",
+    "imageHint": "⚪",
+    "imageUrl": "https://images.unsplash.com/photo-1578632767115-351597cf2477?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "lego_j_10",
+    "category": "lego",
+    "ageGroup": "juniors",
+    "question": "Что такое кулачковый механизм (Cam mechanism) в конструкциях LEGO?",
+    "options": [
+      "Тормозные колодки",
+      "Защитный чехол для батареек",
+      "Железный кулак для драки роботов",
+      "Деталь неправильной овальной формы на вращающемся валу, толкающая шток вверх-вниз по сложному закону"
+    ],
+    "correctIndex": 3,
+    "explanation": "Кулачки преобразуют равномерное вращение в возвратно-поступательные движения шагающих лап или клапанов двигателя.",
+    "fact": "Кулачковые валы управляют впускными клапанами в каждом двигателе внутреннего сгорания.",
+    "imageHint": "🔄",
+    "imageUrl": "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "lego_j_11",
+    "category": "lego",
+    "ageGroup": "juniors",
+    "question": "Какое разрешение позиционирования имеет встроенный энкодер мотора LEGO Education SPIKE Prime?",
+    "options": [
+      "Точность до 1 градуса",
+      "У мотора нет энкодера",
+      "Точность до 45 градусов",
+      "Точность 1 полный оборот"
+    ],
+    "correctIndex": 0,
+    "explanation": "Моторы SPIKE Prime содержат абсолютный датчик положения и могут поворачиваться на точный заданный угол в градусах.",
+    "fact": "Мотор можно использовать не только как привод, но и как рукоятку управления (джойстик обратной связи)!",
+    "imageHint": "🎯",
+    "imageUrl": "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "lego_j_12",
+    "category": "lego",
+    "ageGroup": "juniors",
+    "question": "Как разделены порты на блоке LEGO Mindstorms EV3 для подключения датчиков и моторов?",
+    "options": [
+      "Порты A, B, C, D — для датчиков, а 1, 2, 3, 4 — для моторов",
+      "Порты 1, 2, 3, 4 — для датчиков, а порты A, B, C, D — для моторов",
+      "К блоку EV3 моторы подключаются только через USB",
+      "Все порты одинаковые и универсальные"
+    ],
+    "correctIndex": 1,
+    "explanation": "В блоке EV3 порты с цифрами 1–4 снизу служат входными портами датчиков, а порты с буквами A–D сверху — выходными портами для моторов.",
+    "fact": "При подключении фирменного датчика блок EV3 автоматически определяет тип устройства по технологии Auto-ID.",
+    "imageHint": "🔌",
+    "imageUrl": "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "lego_j_13",
+    "category": "lego",
+    "ageGroup": "juniors",
+    "question": "В каких двух режимах измерения освещенности может работать датчик цвета LEGO Mindstorms EV3?",
+    "options": [
+      "Только в режиме фонарика",
+      "Скорость ветра и влажность",
+      "Яркость отраженного света и интенсивность рассеянного (окружающего) света",
+      "Только в режиме рентгена"
+    ],
+    "correctIndex": 2,
+    "explanation": "В режиме «Отраженный свет» красный диод светит в пол и замеряет отражение (от 0 до 100%), что идеально для езды по черной линии!",
+    "fact": "Датчик цвета EV3 также умеет точно распознавать 8 стандартных цветов деталей LEGO (включая синий, зеленый, желтый, красный и белый).",
+    "imageHint": "🔴",
+    "imageUrl": "https://images.unsplash.com/photo-1507499739999-097706ad8914?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "lego_j_14",
+    "category": "lego",
+    "ageGroup": "juniors",
+    "question": "Для чего в соревнованиях роботов LEGO Mindstorms EV3 применяется гироскопический датчик (Gyro Sensor)?",
+    "options": [
+      "Для связи с телефоном по радио",
+      "Для замера веса робота",
+      "Для определения температуры процессора",
+      "Для точного измерения угла поворота робота и угловой скорости вращения"
+    ],
+    "correctIndex": 3,
+    "explanation": "Гироскоп EV3 измеряет угол с точностью до 1 градуса и позволяет роботу разворачиваться ровно на 90° или 180° без проскальзывания колес.",
+    "fact": "Если робот шевельнется во время калибровки гироскопа при включении, может возникнуть эффект «дрейфа нуля» (угол начнет сам непрерывно расти).",
+    "imageHint": "🧭",
+    "imageUrl": "https://images.unsplash.com/photo-1508739773434-c26b3d09e071?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "lego_j_15",
+    "category": "lego",
+    "ageGroup": "juniors",
+    "question": "Чем средний сервомотор (Medium Motor) EV3 отличается от большого сервомотора (Large Motor)?",
+    "options": [
+      "Он более компактный, развивает более высокую скорость вращения (до 240–260 об/мин), но имеет меньший крутящий момент",
+      "У него нет встроенного энкодера оборотов",
+      "Он работает на бензине",
+      "Он тяжелее и медленнее большого мотора"
+    ],
+    "correctIndex": 0,
+    "explanation": "Средний мотор идеален для легких манипуляторов, клешней-захватов и систем рулевого управления, где важны скорость и малый вес.",
+    "fact": "Большой мотор EV3 имеет крутящий момент около 40 Н·см и скорость до 160–170 об/мин, поэтому его используют как привод колес.",
+    "imageHint": "⚙️",
+    "imageUrl": "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "lego_s_1",
+    "category": "lego",
+    "ageGroup": "seniors",
+    "question": "Что произойдет в планетарном редукторе LEGO Technic, если жестко зафиксировать коронную (эпициклическую) шестерню?",
+    "options": [
+      "Солнечная шестерня заклинит",
+      "Вращение солнечной шестерни передастся на водило с сателлитами с высоким передаточным отношением",
+      "Передаточное отношение станет строго 1:1",
+      "Механизм свободно вращается вхолостую без передачи момента"
+    ],
+    "correctIndex": 1,
+    "explanation": "Передаточное число планетарной передачи при заторможенном венце рассчитывается по формуле i = 1 + Z_коронной / Z_солнечной.",
+    "fact": "Планетарные передачи используются в автоматических коробках передач автомобилей и редукторах турбин вертолетов.",
+    "imageHint": "⚙️",
+    "imageUrl": "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "lego_s_2",
+    "category": "lego",
+    "ageGroup": "seniors",
+    "question": "Какой физический эффект возникает при попытке резко повернуть ось быстро вращающегося массивного маховика из LEGO?",
+    "options": [
+      "Электромагнитная индукция Фарадея",
+      "Эффект Доплера",
+      "Гироскопическая прецессия (возникновение пары сил, отклоняющей ось в перпендикулярной плоскости)",
+      "Термоэлектрический эффект Зеебека"
+    ],
+    "correctIndex": 2,
+    "explanation": "Момент импульса L = I * ω стремится сохранить свое направление в пространстве, создавая гироскопический момент.",
+    "fact": "Силовые гироскопы (гиродины) разворачивают Международную космическую станцию на орбите без использования топлива.",
+    "imageHint": "🔄",
+    "imageUrl": "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "lego_s_3",
+    "category": "lego",
+    "ageGroup": "seniors",
+    "question": "Какой тип пневматических цилиндров и распределителей применяется в линейке LEGO Pneumatic V2?",
+    "options": [
+      "Вакуумные диафрагмы",
+      "Пиропатроны разового надувания",
+      "Гидравлические гидроцилиндры с тормозной жидкостью DOT-4",
+      "Цилиндры двустороннего действия с рабочим давлением воздуха до 2–3 бар и золотниковыми переключателями"
+    ],
+    "correctIndex": 3,
+    "explanation": "Сжатый воздух от компрессора подается через синие клапаны поочередно в нижнюю или верхнюю камеру цилиндра.",
+    "fact": "Кванторианцы собирают на пневматике действующие масштабные модели погрузчиков и кранов-манипуляторов.",
+    "imageHint": "💨",
+    "imageUrl": "https://images.unsplash.com/photo-1581092162384-8987c1d64718?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "lego_s_4",
+    "category": "lego",
+    "ageGroup": "seniors",
+    "question": "Каким встроенным текстовым языком программирования можно управлять смарт-хабами SPIKE Prime без блоков Scratch?",
+    "options": [
+      "MicroPython",
+      "Fortran 77",
+      "x86 Assembly",
+      "Pure HTML5"
+    ],
+    "correctIndex": 0,
+    "explanation": "ОС хаба SPIKE Prime запускает MicroPython, позволяя писать асинхронный код с библиотеками math, hub и uasyncio.",
+    "fact": "Код на Python позволяет реализовать сложные конечные автоматы и быстрые фильтры данных гироскопа.",
+    "imageHint": "🐍",
+    "imageUrl": "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "lego_s_5",
+    "category": "lego",
+    "ageGroup": "seniors",
+    "question": "Что представляет собой шарнирный четырехзвенник Чебышёва / параллелограмм в механизмах LEGO?",
+    "options": [
+      "Счетчик оборотов колеса",
+      "Кинематическая цепь из 4 шарнирно соединенных балок, преобразующая вращение кривошипа в сложную траекторию (например, ходьбу)",
+      "Стабилизатор напряжения",
+      "Кубический замок для защиты хаба"
+    ],
+    "correctIndex": 1,
+    "explanation": "Механизмы Чебышёва, Кланна и Янсена позволяют создавать удивительных кинетических шагающих роботов без колес!",
+    "fact": "Знаменитые скульптуры Strandbeest Тео Янсена собраны на основе оптимизированных длин звеньев такого механизма.",
+    "imageHint": "🕷️",
+    "imageUrl": "https://images.unsplash.com/photo-1618042164219-62c820f10723?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "lego_s_6",
+    "category": "lego",
+    "ageGroup": "seniors",
+    "question": "Какое явление упругой деформации длинных крестообразных осей LEGO Technic приводит к потере точности при высоких нагрузках?",
+    "options": [
+      "Электростатический пробой",
+      "Плавление пластика",
+      "Торсионное скручивание (упругий угол закрутки вала)",
+      "Магнитное насыщение"
+    ],
+    "correctIndex": 2,
+    "explanation": "Длинная пластиковая ось работает как торсионная пружина. Для тяжелых нагрузок применяют металлические оси или редукторы у самого колеса.",
+    "fact": "По правилам конструирования редуктор понижения следует размещать как можно ближе к нагруженному механизму.",
+    "imageHint": "🌀",
+    "imageUrl": "https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "lego_s_7",
+    "category": "lego",
+    "ageGroup": "seniors",
+    "question": "Как в спортивной робототехнике LEGO компенсируют дрейф показаний встроенного гироскопа во времени?",
+    "options": [
+      "Быстрым потряхиванием робота",
+      "Нагреванием хаба феном",
+      "Переворотом батарейки",
+      "Калибровкой смещения нуля (bias offset) в неподвижном состоянии и интеграцией с оптической одометрией"
+    ],
+    "correctIndex": 3,
+    "explanation": "Дрейф нуля вызван тепловыми и кремниевыми шумами MEMS-структуры. Программная компенсация сохраняет точность угла на минуты.",
+    "fact": "Перед стартом на поле робот неподвижно лежит 2-3 секунды для замера среднего шума сенсора.",
+    "imageHint": "🧭",
+    "imageUrl": "https://images.unsplash.com/photo-1508739773434-c26b3d09e071?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "lego_s_8",
+    "category": "lego",
+    "ageGroup": "seniors",
+    "question": "Для чего в многоступенчатых коробках передач LEGO Technic используется деталь «кольцо переключения передач» (Driving Ring)?",
+    "options": [
+      "Оно скользит по оси и входит в зацепление зубьями с одной из свободно вращающихся шестерен, блокируя ее на валу",
+      "Оно работает как предохранитель батарейки",
+      "Для охлаждения шестеренок",
+      "Для включения фар"
+    ],
+    "correctIndex": 0,
+    "explanation": "Кольцо переключения вместе с муфтой сцепления образует синхронизатор, как в реальных механических КПП суперкаров.",
+    "fact": "В наборах LEGO Technic собирают 8-ступенчатые секвентальные коробки с подрулевыми лепестками переключения!",
+    "imageHint": "🕹️",
+    "imageUrl": "https://images.unsplash.com/photo-1580273916550-e323be2ae537?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "lego_s_9",
+    "category": "lego",
+    "ageGroup": "seniors",
+    "question": "Какое соотношение определяет критический угол наклона поверхности, при котором робот LEGO опрокинется?",
+    "options": [
+      "Цвет пластика деталей корпуса",
+      "tg(α) = B / (2 * H), где B — ширина колеи, а H — высота центра масс от земли",
+      "Количество зубьев на шестеренке",
+      "Емкость аккумулятора в мАч"
+    ],
+    "correctIndex": 1,
+    "explanation": "Опрокидывание наступает в момент, когда проекция центра масс выходит за пределы площади опорного контура колес.",
+    "fact": "Для побед в соревнованиях \"Робокросс\" центр тяжести стараются опустить максимально близко к осям.",
+    "imageHint": "📐",
+    "imageUrl": "https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "lego_s_10",
+    "category": "lego",
+    "ageGroup": "seniors",
+    "question": "Что позволяет делать протокол Bluetooth Low Energy (LWP 3.0 / LEGO Wireless Protocol)?",
+    "options": [
+      "Заряжать хаб по воздуху на 50 метров",
+      "Смотреть видеоролики на экране хаба",
+      "Управлять хабами, слать байт-команды моторам и считывать телеметрию датчиков удаленно из собственного ПО на Python/C#",
+      "Раздавать Wi-Fi на весь технопарк"
+    ],
+    "correctIndex": 2,
+    "explanation": "Спецификация LEGO Wireless Protocol открыта компанией LEGO и позволяет разработчикам объединять хабы с ПК и микроконтроллерами.",
+    "fact": "Кванторианцы создают единую систему, где виртуальная сцена в VR шлеме управляет реальным роботом LEGO по Bluetooth!",
+    "imageHint": "📡",
+    "imageUrl": "https://images.unsplash.com/photo-1544197150-b99a580bb7a8?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "lego_s_11",
+    "category": "lego",
+    "ageGroup": "seniors",
+    "question": "Какая операционная система лежит в основе прошивки блока LEGO Mindstorms Education EV3?",
+    "options": [
+      "MS-DOS 6.22",
+      "Android Wear",
+      "Windows CE 5.0",
+      "Встраиваемый Linux (ARM9 / Texas Instruments Sitara AM1808)"
+    ],
+    "correctIndex": 3,
+    "explanation": "Модуль EV3 работает под управлением специализированного ядра Linux, что позволяет подключать microSD карту и запускать альтернативные ОС, такие как ev3dev.",
+    "fact": "Благодаря открытому ядру Linux на EV3 можно программировать на чистом Python, C++, Java и подключать Wi-Fi/Bluetooth USB-адаптеры.",
+    "imageHint": "🐧",
+    "imageUrl": "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "lego_s_12",
+    "category": "lego",
+    "ageGroup": "seniors",
+    "question": "Какой алгоритм регулятора применяется в EV3 для плавного и скоростного движения робота точно по границе черной линии?",
+    "options": [
+      "ПИД-регулятор (пропорционально-интегрально-дифференцирующий)",
+      "Случайное блуждание (Random Walk)",
+      "Метод пузырька",
+      "Бинарный поиск"
+    ],
+    "correctIndex": 0,
+    "explanation": "ПИД-регулятор вычисляет ошибку отклонения от границы линии (P), накапливает погрешность (I) и прогнозирует скорость изменения ошибки (D), исключая колебания.",
+    "fact": "Релейный регулятор («зигзаг») заставляет робота дергаться, а грамотно настроенный ПИД-регулятор ведет робота со скоростью до 1–1.5 м/с без раскачки!",
+    "imageHint": "📈",
+    "imageUrl": "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "lego_s_13",
+    "category": "lego",
+    "ageGroup": "seniors",
+    "question": "Какое нестандартное применение имеет инфракрасный датчик (EV3 IR Sensor) совместно с инфракрасным маяком (EV3 Beacon)?",
+    "options": [
+      "Он измеряет уровень радиации",
+      "Он может работать как ручной пульт ДУ и как система пеленгации (направления и расстояния) до маяка",
+      "Он передает видео в формате 4K",
+      "Он используется для беспроводной зарядки робота"
+    ],
+    "correctIndex": 1,
+    "explanation": "В режиме «Beacon» датчик сообщает угол отклонения (от -25 до +25) и приближенное расстояние (0–100) до включенного ИК-маяка.",
+    "fact": "На основе маяка и датчика часто программируют роботов-собак, которые преданно бегут за идущим человеком.",
+    "imageHint": "🚨",
+    "imageUrl": "https://images.unsplash.com/photo-1517420704952-d9f39e95b43e?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": "lego_s_14",
+    "category": "lego",
+    "ageGroup": "seniors",
+    "question": "Что представляет собой daisy-chaining (шлейфовое соединение) блоков LEGO Mindstorms EV3?",
+    "options": [
+      "Соединение роботов веревкой",
+      "Обмен звуковыми файлами",
+      "Последовательное объединение до 4 блоков EV3 по кабелю USB для управления до 16 моторами и 16 датчиками из одной программы",
+      "Зарядка одного блока от другого"
+    ],
+    "correctIndex": 2,
+    "explanation": "Режим Daisy Chain превращает один блок EV3 в ведущий (Master), а остальные три — в ведомые (Slave) модули расширения портов.",
+    "fact": "Шлейфовое объединение используется для создания гигантских шагающих роботов-пауков или роботизированных фабрик сортировки деталей.",
+    "imageHint": "🔗",
+    "imageUrl": "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=800&q=80"
+  }
+];
+    const ACHIEVEMENTS = [
+  {
+    "id": "first_quiz",
+    "title": "Первый квант знаний",
+    "description": "Заверши свою самую первую викторину в технопарке",
+    "icon": "🌱",
+    "category": "general",
+    "conditionDescription": "Завершить 1 любую игру"
+  },
+  {
+    "id": "combo_5",
+    "title": "Турбо-комбо x5",
+    "description": "Дай 5 правильных ответов подряд в одном раунде",
+    "icon": "⚡",
+    "category": "streak",
+    "conditionDescription": "Стрик 5 верных ответов"
+  },
+  {
+    "id": "speed_demon",
+    "title": "Молния Квантума",
+    "description": "Ответь правильно быстрее чем за 5 секунд",
+    "icon": "⏱️",
+    "category": "general",
+    "conditionDescription": "Быстрый ответ < 5 сек"
+  },
+  {
+    "id": "vr_adept",
+    "title": "Кибер-навигатор VR",
+    "description": "Заверши трек Виртуальной реальности с точностью 100%",
+    "icon": "🥽",
+    "category": "vr",
+    "conditionDescription": "100% верных ответов в VR"
+  },
+  {
+    "id": "robotics_pro",
+    "title": "Инженер роботов",
+    "description": "Заверши трек Робототехники с точностью 100%",
+    "icon": "🤖",
+    "category": "robotics",
+    "conditionDescription": "100% верных ответов в Робототехнике"
+  },
+  {
+    "id": "lego_master",
+    "title": "Мастер шестерёнок",
+    "description": "Заверши трек Легоконструирования с точностью 100%",
+    "icon": "🧱",
+    "category": "lego",
+    "conditionDescription": "100% верных ответов в LEGO"
+  },
+  {
+    "id": "vk_connected",
+    "title": "Резидент Квантума",
+    "description": "Подключи свой профиль VK ID для таблицы лидеров",
+    "icon": "💙",
+    "category": "general",
+    "conditionDescription": "Авторизоваться через VK"
+  },
+  {
+    "id": "high_scorer",
+    "title": "Золотой резерв",
+    "description": "Набери более 2 000 очков за одну викторину",
+    "icon": "🏆",
+    "category": "streak",
+    "conditionDescription": "Счет > 2000 очков"
+  },
+  {
+    "id": "senior_champion",
+    "title": "Архитектор будущего",
+    "description": "Пройди сложнейший уровень 14+ без единой ошибки",
+    "icon": "🧠",
+    "category": "general",
+    "conditionDescription": "100% точность на уровне 14+"
+  }
+];
+    const INITIAL_LEADERBOARD = [
+  {
+    "id": "lb_1",
+    "name": "Артём Волков",
+    "vkId": "artem_robotics",
+    "avatar": "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=120&q=80",
+    "score": 3450,
+    "accuracy": 95,
+    "category": "robotics",
+    "ageGroup": "seniors",
+    "badgesCount": 7,
+    "date": "Сегодня, 14:20"
+  },
+  {
+    "id": "lb_2",
+    "name": "Полина Смирнова",
+    "vkId": "polina_vr_queen",
+    "avatar": "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=120&q=80",
+    "score": 3120,
+    "accuracy": 100,
+    "category": "vr",
+    "ageGroup": "juniors",
+    "badgesCount": 6,
+    "date": "Вчера, 18:45"
+  },
+  {
+    "id": "lb_3",
+    "name": "Михаил Ковалёв",
+    "vkId": "misha_lego_lab",
+    "avatar": "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?auto=format&fit=crop&w=120&q=80",
+    "score": 2890,
+    "accuracy": 90,
+    "category": "lego",
+    "ageGroup": "juniors",
+    "badgesCount": 5,
+    "date": "2 дня назад"
+  },
+  {
+    "id": "lb_4",
+    "name": "Даниил и Лев (Тандем)",
+    "vkId": "danya_quantum",
+    "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80",
+    "score": 2650,
+    "accuracy": 88,
+    "category": "all",
+    "ageGroup": "kids",
+    "badgesCount": 4,
+    "date": "3 дня назад"
+  },
+  {
+    "id": "lb_5",
+    "name": "Алиса Морозова",
+    "vkId": "alice_xr_dev",
+    "avatar": "https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=120&q=80",
+    "score": 2420,
+    "accuracy": 92,
+    "category": "vr",
+    "ageGroup": "seniors",
+    "badgesCount": 6,
+    "date": "19 сен"
+  },
+  {
+    "id": "lb_6",
+    "name": "Илья Сидоров",
+    "vkId": "ilya_technic",
+    "avatar": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=120&q=80",
+    "score": 2180,
+    "accuracy": 85,
+    "category": "lego",
+    "ageGroup": "kids",
+    "badgesCount": 3,
+    "date": "18 сен"
+  }
+];
+
+    // 2. AUDIO SYNTHESIZER (Web Audio API - 100% Offline & Asset-free)
+    class SoundEngine {
+      constructor() {
+        this.ctx = null;
+        this.enabled = true;
+        this.loadSettings();
+      }
+
+      loadSettings() {
+        const saved = localStorage.getItem('quantum_sound_enabled');
+        if (saved !== null) {
+          this.enabled = saved === 'true';
+        }
+      }
+
+      toggleSound() {
+        this.enabled = !this.enabled;
+        localStorage.setItem('quantum_sound_enabled', String(this.enabled));
+        return this.enabled;
+      }
+
+      initCtx() {
+        if (!this.ctx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          if (AudioContext) {
+            this.ctx = new AudioContext();
+          }
+        }
+        if (this.ctx && this.ctx.state === 'suspended') {
+          this.ctx.resume();
+        }
+      }
+
+      playTone(freq, type = 'sine', duration = 0.15, gainVal = 0.1) {
+        if (!this.enabled) return;
+        try {
+          this.initCtx();
+          if (!this.ctx) return;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = type;
+          osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+          gain.gain.setValueAtTime(gainVal, this.ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + duration);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start();
+          osc.stop(this.ctx.currentTime + duration);
+        } catch (e) {}
+      }
+
+      playClick() {
+        this.playTone(800, 'triangle', 0.05, 0.08);
+      }
+
+      playCorrect(streak = 1) {
+        if (!this.enabled) return;
+        try {
+          this.initCtx();
+          if (!this.ctx) return;
+          const now = this.ctx.currentTime;
+          const semitoneShift = Math.min(6, (streak - 1) * 1.5);
+          const pitchRatio = Math.pow(2, semitoneShift / 12);
+          const freqs = [659.25, 830.61, 987.77, 1318.51].map(f => f * pitchRatio);
+          freqs.forEach((freq, i) => {
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(freq, now + i * 0.065);
+            gain.gain.setValueAtTime(0, now + i * 0.065);
+            gain.gain.linearRampToValueAtTime(0.2, now + i * 0.065 + 0.015);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.065 + 0.35);
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc.start(now + i * 0.065);
+            osc.stop(now + i * 0.065 + 0.35);
+          });
+        } catch (e) {}
+      }
+
+      playWrong() {
+        if (!this.enabled) return;
+        try {
+          this.initCtx();
+          if (!this.ctx) return;
+          const now = this.ctx.currentTime;
+          const tones = [
+            { freq: 174.61, time: now, duration: 0.16 },
+            { freq: 130.81, time: now + 0.14, duration: 0.24 }
+          ];
+          tones.forEach(({ freq, time, duration }) => {
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(freq, time);
+            osc.frequency.exponentialRampToValueAtTime(freq * 0.88, time + duration);
+            gain.gain.setValueAtTime(0, time);
+            gain.gain.linearRampToValueAtTime(0.18, time + 0.02);
+            gain.gain.exponentialRampToValueAtTime(0.001, time + duration);
+            const filter = this.ctx.createBiquadFilter();
+            filter.type = 'lowpass';
+            filter.frequency.setValueAtTime(700, time);
+            osc.connect(filter);
+            filter.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc.start(time);
+            osc.stop(time + duration);
+          });
+        } catch (e) {}
+      }
+
+      playStreak(streak) {
+        if (!this.enabled) return;
+        const baseFreq = 440 + Math.min(streak, 10) * 60;
+        this.playTone(baseFreq, 'sine', 0.2, 0.15);
+      }
+
+      playTick() {
+        this.playTone(900, 'sine', 0.03, 0.04);
+      }
+
+      playFanfare() {
+        if (!this.enabled) return;
+        try {
+          this.initCtx();
+          if (!this.ctx) return;
+          const notes = [440, 554.37, 659.25, 880];
+          notes.forEach((freq, idx) => {
+            setTimeout(() => this.playTone(freq, 'triangle', 0.35, 0.18), idx * 120);
+          });
+        } catch (e) {}
+      }
+    }
+
+    const soundEngine = new SoundEngine();
+
+    // 3. CONFETTI ENGINE (HTML5 Canvas Particles)
+    const confettiCanvas = document.getElementById('confetti-canvas');
+    const confettiCtx = confettiCanvas.getContext('2d');
+    let confettiParticles = [];
+    let confettiAnimId = null;
+
+    function resizeConfetti() {
+      confettiCanvas.width = window.innerWidth;
+      confettiCanvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeConfetti);
+    resizeConfetti();
+
+    function fireConfetti() {
+      confettiParticles = [];
+      const colors = ['#06b6d4', '#3b82f6', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6'];
+      for (let i = 0; i < 120; i++) {
+        confettiParticles.push({
+          x: confettiCanvas.width / 2,
+          y: confettiCanvas.height * 0.4,
+          vx: (Math.random() - 0.5) * 16,
+          vy: (Math.random() - 0.7) * 16,
+          size: Math.random() * 8 + 4,
+          color: colors[Math.floor(Math.random() * colors.length)],
+          rotation: Math.random() * 360,
+          rotSpeed: (Math.random() - 0.5) * 10,
+          gravity: 0.35,
+          opacity: 1
+        });
+      }
+      if (!confettiAnimId) {
+        animateConfetti();
+      }
+    }
+
+    function animateConfetti() {
+      confettiCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+      let alive = false;
+      for (let p of confettiParticles) {
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vy += p.gravity;
+        p.rotation += p.rotSpeed;
+        p.opacity -= 0.008;
+
+        if (p.opacity > 0 && p.y < confettiCanvas.height) {
+          alive = true;
+          confettiCtx.save();
+          confettiCtx.translate(p.x, p.y);
+          confettiCtx.rotate((p.rotation * Math.PI) / 180);
+          confettiCtx.fillStyle = p.color;
+          confettiCtx.globalAlpha = Math.max(0, p.opacity);
+          confettiCtx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.6);
+          confettiCtx.restore();
+        }
+      }
+      if (alive) {
+        confettiAnimId = requestAnimationFrame(animateConfetti);
+      } else {
+        confettiCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+        confettiAnimId = null;
+      }
+    }
+
+    // 4. GAME STATE & VARIABLES
+    let state = {
+      ageGroup: 'kids',
+      category: 'vr',
+      roundLength: 8,
+      activeQuestions: [],
+      currentIndex: 0,
+      score: 0,
+      streak: 0,
+      maxStreak: 0,
+      correctCount: 0,
+      timeLeft: 35,
+      timerInterval: null,
+      answered: false,
+      participantName: '',
+      participantSchool: '',
+      userProfile: {
+        name: 'Юный Кванторианец',
+        vkId: 'quantum_resident',
+        avatar: '🤖'
+      },
+      unlockedAchievements: []
+    };
+
+    // Load persisted state
+    function loadSavedData() {
+      const savedUser = localStorage.getItem('quantum_user_profile');
+      if (savedUser) {
+        try { state.userProfile = JSON.parse(savedUser); } catch(e) {}
+      }
+      const savedName = localStorage.getItem('quantum_participant_name');
+      if (savedName) {
+        state.participantName = savedName;
+        const inputN = document.getElementById('participant-name-input');
+        if (inputN) inputN.value = savedName;
+      }
+      const savedSchool = localStorage.getItem('quantum_participant_school');
+      if (savedSchool) {
+        state.participantSchool = savedSchool;
+        const inputS = document.getElementById('participant-school-input');
+        if (inputS) inputS.value = savedSchool;
+      }
+      const savedAch = localStorage.getItem('quantum_unlocked_achievements');
+      if (savedAch) {
+        try { state.unlockedAchievements = JSON.parse(savedAch); } catch(e) {}
+      }
+      updateHeaderUser();
+      updateAchievementsCounter();
+      updateSoundUI();
+    }
+
+    function saveParticipantData() {
+      const n = document.getElementById('participant-name-input').value;
+      const s = document.getElementById('participant-school-input').value;
+      state.participantName = n;
+      state.participantSchool = s;
+      localStorage.setItem('quantum_participant_name', n);
+      localStorage.setItem('quantum_participant_school', s);
+    }
+
+    function updateHeaderUser() {
+      document.getElementById('header-user-name').textContent = state.userProfile.name;
+      document.getElementById('header-user-avatar').textContent = state.userProfile.avatar;
+    }
+
+    function updateAchievementsCounter() {
+      document.getElementById('unlocked-count').textContent = state.unlockedAchievements.length;
+    }
+
+    function updateSoundUI() {
+      const icon = document.getElementById('sound-icon');
+      const label = document.getElementById('sound-label');
+      if (soundEngine.enabled) {
+        icon.textContent = '🔊';
+        label.textContent = 'Звук ВКЛ';
+      } else {
+        icon.textContent = '🔇';
+        label.textContent = 'Звук ВЫКЛ';
+      }
+    }
+
+    document.getElementById('btn-sound-toggle').addEventListener('click', () => {
+      soundEngine.toggleSound();
+      updateSoundUI();
+    });
+
+    // 5. SELECTION HANDLERS
+    function setAgeGroup(age) {
+      soundEngine.playClick();
+      state.ageGroup = age;
+      document.querySelectorAll('.age-card').forEach(c => {
+        c.classList.toggle('active', c.getAttribute('data-age') === age);
+      });
+      updateQuestionsCount();
+    }
+
+    function setCategory(cat) {
+      soundEngine.playClick();
+      state.category = cat;
+      document.querySelectorAll('.cat-card').forEach(c => {
+        c.classList.toggle('active', c.getAttribute('data-cat') === cat);
+      });
+      updateQuestionsCount();
+    }
+
+    function setRoundLength(len) {
+      soundEngine.playClick();
+      state.roundLength = len;
+      document.querySelectorAll('.round-btn').forEach(b => {
+        b.classList.toggle('active', Number(b.getAttribute('data-len')) === len);
+      });
+    }
+
+    function updateQuestionsCount() {
+      const filtered = QUESTIONS.filter(q => {
+        const matchAge = q.ageGroup === state.ageGroup;
+        const matchCat = state.category === 'all' || q.category === state.category;
+        return matchAge && matchCat;
+      });
+      document.getElementById('topic-questions-count').textContent = filtered.length + ' вопросов в подборке';
+    }
+
+    // 6. QUIZ FLOW
+    function startQuiz() {
+      soundEngine.playClick();
+      const filtered = QUESTIONS.filter(q => {
+        const matchAge = q.ageGroup === state.ageGroup;
+        const matchCat = state.category === 'all' || q.category === state.category;
+        return matchAge && matchCat;
+      });
+
+      if (filtered.length === 0) {
+        alert('В выбранной категории пока нет вопросов для данного возраста.');
+        return;
+      }
+
+      // Helper to randomize the 4 options so correct answers are scattered among A, B, C, D
+      function shuffleQuestionOpts(q) {
+        const indexed = q.options.map((opt, idx) => ({ opt, isCorrect: idx === q.correctIndex }));
+        for (let i = indexed.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [indexed[i], indexed[j]] = [indexed[j], indexed[i]];
+        }
+        return {
+          ...q,
+          options: indexed.map(item => item.opt),
+          correctIndex: indexed.findIndex(item => item.isCorrect)
+        };
+      }
+
+      // Shuffle questions and options
+      const shuffled = [...filtered].sort(() => 0.5 - Math.random());
+      const selected = state.roundLength === 0 ? shuffled : shuffled.slice(0, state.roundLength);
+      state.activeQuestions = selected.map(shuffleQuestionOpts);
+      state.currentIndex = 0;
+      state.score = 0;
+      state.streak = 0;
+      state.maxStreak = 0;
+      state.correctCount = 0;
+
+      // Badges
+      const catNames = { vr: '🥽 VR-технологии', robotics: '🤖 Робототехника', lego: '🧱 Легоконструирование', all: '⚡ Квантум Микс' };
+      document.getElementById('quiz-cat-badge').textContent = catNames[state.category];
+      document.getElementById('quiz-age-badge').textContent = AGE_TIERS[state.ageGroup].ageRange;
+
+      document.getElementById('screen-menu').style.display = 'none';
+      document.getElementById('screen-results').style.display = 'none';
+      document.getElementById('screen-quiz').style.display = 'block';
+
+      loadQuestion(0);
+    }
+
+    function loadQuestion(index) {
+      clearInterval(state.timerInterval);
+      state.answered = false;
+      state.currentIndex = index;
+
+      const q = state.activeQuestions[index];
+      const tier = AGE_TIERS[state.ageGroup];
+
+      document.getElementById('current-q-num').textContent = index + 1;
+      document.getElementById('total-q-num').textContent = state.activeQuestions.length;
+      document.getElementById('quiz-score').textContent = state.score;
+
+      // Question content & visual image
+      if (q.imageUrl) {
+        document.getElementById('q-img-wrap').style.display = 'block';
+        document.getElementById('q-img').src = q.imageUrl;
+        document.getElementById('q-img-badge').textContent = q.imageHint || '⚡';
+        document.getElementById('q-hint').style.display = 'none';
+      } else {
+        document.getElementById('q-img-wrap').style.display = 'none';
+        document.getElementById('q-hint').style.display = 'block';
+        document.getElementById('q-hint').textContent = q.imageHint || '⚡';
+      }
+      document.getElementById('q-text').textContent = q.question;
+
+      // Hide explanation
+      document.getElementById('explanation-container').style.display = 'none';
+
+      // Render options with staggered animation
+      const optContainer = document.getElementById('options-container');
+      optContainer.innerHTML = '';
+      const letters = ['A', 'B', 'C', 'D'];
+      q.options.forEach((optText, optIdx) => {
+        const btn = document.createElement('button');
+        btn.className = 'option-btn';
+        btn.style.animation = `slideUp 0.22s cubic-bezier(0.22, 1, 0.36, 1) ${optIdx * 0.05}s both`;
+        btn.innerHTML = `<span class="option-index">${letters[optIdx]}</span><span>${optText}</span>`;
+        btn.onclick = () => selectAnswer(optIdx);
+        optContainer.appendChild(btn);
+      });
+
+      // Reset timer
+      state.timeLeft = tier.timeLimitSeconds;
+      updateTimerUI();
+      const totalSeconds = tier.timeLimitSeconds;
+
+      state.timerInterval = setInterval(() => {
+        state.timeLeft -= 1;
+        updateTimerUI(totalSeconds);
+
+        if (state.timeLeft <= 5 && state.timeLeft > 0) {
+          soundEngine.playTick();
+        }
+
+        if (state.timeLeft <= 0) {
+          clearInterval(state.timerInterval);
+          onTimeOut();
+        }
+      }, 1000);
+    }
+
+    function updateTimerUI(total) {
+      total = total || AGE_TIERS[state.ageGroup].timeLimitSeconds;
+      document.getElementById('timer-seconds').textContent = Math.max(0, state.timeLeft);
+      const pct = Math.max(0, (state.timeLeft / total) * 100);
+      const fill = document.getElementById('timer-fill');
+      fill.style.width = pct + '%';
+      const timerBox = document.getElementById('timer-box');
+      if (state.timeLeft <= 5) {
+        timerBox.classList.add('timer-warning');
+      } else {
+        timerBox.classList.remove('timer-warning');
+      }
+    }
+
+    function selectAnswer(selectedIndex) {
+      if (state.answered) return;
+      state.answered = true;
+      clearInterval(state.timerInterval);
+
+      const q = state.activeQuestions[state.currentIndex];
+      const tier = AGE_TIERS[state.ageGroup];
+      const optButtons = document.querySelectorAll('.option-btn');
+
+      optButtons.forEach(btn => btn.disabled = true);
+
+      if (selectedIndex === q.correctIndex) {
+        // CORRECT
+        soundEngine.playCorrect();
+        optButtons[selectedIndex].classList.add('correct');
+        state.streak += 1;
+        if (state.streak > state.maxStreak) state.maxStreak = state.streak;
+        state.correctCount += 1;
+
+        if (state.streak > 1) {
+          soundEngine.playStreak(state.streak);
+        }
+
+        // Score calc
+        const baseScore = 100;
+        const timeBonus = Math.floor(state.timeLeft * 3);
+        const streakBonus = Math.min(state.streak, 5) * 20;
+        const earned = Math.round((baseScore + timeBonus + streakBonus) * tier.multiplier);
+        state.score += earned;
+        document.getElementById('quiz-score').textContent = state.score;
+
+        document.getElementById('exp-status').textContent = 'Правильно! +' + earned + ' XP 🎉';
+        document.getElementById('exp-status').style.color = '#34d399';
+
+        // Check speed achievement
+        if (tier.timeLimitSeconds - state.timeLeft < 5) {
+          unlockAchievement('speed_demon');
+        }
+        if (state.streak >= 5) {
+          unlockAchievement('combo_5');
+        }
+      } else {
+        // WRONG
+        soundEngine.playWrong();
+        if (selectedIndex >= 0) {
+          optButtons[selectedIndex].classList.add('wrong');
+        }
+        optButtons[q.correctIndex].classList.add('correct');
+        state.streak = 0;
+
+        document.getElementById('exp-status').textContent = 'Не совсем так 💡';
+        document.getElementById('exp-status').style.color = '#f87171';
+      }
+
+      // Update Streak Indicator
+      const streakInd = document.getElementById('streak-indicator');
+      if (state.streak > 1) {
+        streakInd.style.display = 'flex';
+        document.getElementById('streak-count').textContent = state.streak;
+      } else {
+        streakInd.style.display = 'none';
+      }
+
+      // Explanation & Fact
+      document.getElementById('exp-text').textContent = q.explanation;
+      document.getElementById('fact-text').textContent = q.fact;
+      document.getElementById('explanation-container').style.display = 'block';
+
+      // Last question button text
+      const nextBtn = document.getElementById('btn-next-question');
+      if (state.currentIndex === state.activeQuestions.length - 1) {
+        nextBtn.innerHTML = '<span>Завершить викторину</span><span>🏆</span>';
+      } else {
+        nextBtn.innerHTML = '<span>Следующий вопрос</span><span>➔</span>';
+      }
+    }
+
+    function onTimeOut() {
+      selectAnswer(-1);
+    }
+
+    function nextQuestion() {
+      soundEngine.playClick();
+      if (state.currentIndex < state.activeQuestions.length - 1) {
+        loadQuestion(state.currentIndex + 1);
+      } else {
+        finishQuiz();
+      }
+    }
+
+    function finishQuiz() {
+      clearInterval(state.timerInterval);
+      soundEngine.playFanfare();
+      fireConfetti();
+
+      // Achievements check
+      unlockAchievement('first_quiz');
+      if (state.score > 2000) unlockAchievement('high_scorer');
+      const total = state.activeQuestions.length;
+      const accuracy = Math.round((state.correctCount / total) * 100);
+
+      if (accuracy === 100) {
+        if (state.category === 'vr') unlockAchievement('vr_adept');
+        if (state.category === 'robotics') unlockAchievement('robotics_pro');
+        if (state.category === 'lego') unlockAchievement('lego_master');
+        if (state.ageGroup === 'seniors') unlockAchievement('senior_champion');
+      }
+
+      // Populate results
+      document.getElementById('res-score').textContent = state.score;
+      document.getElementById('res-accuracy').textContent = accuracy + '%';
+      document.getElementById('res-correct').textContent = state.correctCount + '/' + total;
+      document.getElementById('res-maxstreak').textContent = state.maxStreak;
+
+      if (accuracy >= 90) {
+        document.getElementById('res-badge').textContent = '🌟';
+        document.getElementById('res-title').textContent = 'Грандиозный триумф!';
+        document.getElementById('res-subtitle').textContent = 'Идеальные инженерные знания технопарка!';
+      } else if (accuracy >= 60) {
+        document.getElementById('res-badge').textContent = '🚀';
+        document.getElementById('res-title').textContent = 'Отличная работа!';
+        document.getElementById('res-subtitle').textContent = 'Прекрасный уровень подготовки!';
+      } else {
+        document.getElementById('res-badge').textContent = '💡';
+        document.getElementById('res-title').textContent = 'Хорошая попытка!';
+        document.getElementById('res-subtitle').textContent = 'Продолжай изучать технологии в Квантуме Добра!';
+      }
+
+      // Save to local leaderboard
+      saveToLeaderboard(state.score, accuracy);
+
+      document.getElementById('screen-quiz').style.display = 'none';
+      document.getElementById('screen-results').style.display = 'block';
+    }
+
+    function confirmQuit() {
+      soundEngine.playClick();
+      document.getElementById('modal-quit').classList.add('open');
+    }
+
+    function executeQuit() {
+      soundEngine.playClick();
+      closeModal('modal-quit');
+      clearInterval(state.timerInterval);
+      showMenu();
+    }
+
+    function showMenu() {
+      soundEngine.playClick();
+      document.getElementById('screen-quiz').style.display = 'none';
+      document.getElementById('screen-results').style.display = 'none';
+      document.getElementById('screen-menu').style.display = 'block';
+    }
+
+    function restartQuiz() {
+      startQuiz();
+    }
+
+    // 7. ACHIEVEMENTS SYSTEM
+    function unlockAchievement(id) {
+      if (state.unlockedAchievements.includes(id)) return;
+      state.unlockedAchievements.push(id);
+      localStorage.setItem('quantum_unlocked_achievements', JSON.stringify(state.unlockedAchievements));
+      updateAchievementsCounter();
+
+      const ach = ACHIEVEMENTS.find(a => a.id === id);
+      if (ach) {
+        showToast(ach.title, ach.icon);
+      }
+    }
+
+    function showToast(title, icon) {
+      const toast = document.getElementById('achievement-toast');
+      document.getElementById('toast-title').textContent = title;
+      document.getElementById('toast-icon').textContent = icon;
+      toast.classList.add('show');
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 4000);
+    }
+
+    // 8. LEADERBOARD SYSTEM
+    function getLeaderboard() {
+      const saved = localStorage.getItem('quantum_leaderboard_custom');
+      if (saved) {
+        try { return JSON.parse(saved); } catch(e) {}
+      }
+      return INITIAL_LEADERBOARD;
+    }
+
+    function saveToLeaderboard(score, accuracy) {
+      let list = getLeaderboard();
+      const newEntry = {
+        id: 'user_' + Date.now(),
+        name: state.userProfile.name,
+        vkId: state.userProfile.vkId,
+        avatar: state.userProfile.avatar,
+        score: score,
+        accuracy: accuracy,
+        category: state.category,
+        ageGroup: state.ageGroup,
+        badgesCount: state.unlockedAchievements.length,
+        date: 'Сегодня'
+      };
+      list.push(newEntry);
+      list.sort((a, b) => b.score - a.score);
+      localStorage.setItem('quantum_leaderboard_custom', JSON.stringify(list.slice(0, 20)));
+    }
+
+    function openLeaderboard() {
+      soundEngine.playClick();
+      const list = getLeaderboard();
+      const podium = document.getElementById('leaderboard-podium');
+      const listContainer = document.getElementById('leaderboard-list');
+
+      // Top 3
+      const top3 = list.slice(0, 3);
+      podium.innerHTML = '';
+      const slots = ['first', 'second', 'third'];
+      const medals = ['🥇', '🥈', '🥉'];
+      top3.forEach((item, idx) => {
+        const slot = document.createElement('div');
+        slot.className = 'podium-slot ' + slots[idx];
+        const isEmoji = !item.avatar.startsWith('http');
+        const avHtml = isEmoji ? `<div style="font-size:24px; margin-bottom:4px;">${item.avatar}</div>` : `<img src="${item.avatar}" class="podium-avatar">`;
+        slot.innerHTML = `
+          <div style="font-size: 16px; margin-bottom: 2px;">${medals[idx]}</div>
+          ${avHtml}
+          <div class="podium-name">${item.name}</div>
+          <div class="podium-score">${item.score} XP</div>
+        `;
+        podium.appendChild(slot);
+      });
+
+      // Remaining list
+      listContainer.innerHTML = '';
+      list.slice(3, 10).forEach((item, idx) => {
+        const row = document.createElement('div');
+        row.style.display = 'flex';
+        row.style.alignItems = 'center';
+        row.style.justifyContent = 'space-between';
+        row.style.padding = '8px 12px';
+        row.style.background = 'rgba(30, 41, 59, 0.5)';
+        row.style.borderRadius = '10px';
+        row.style.marginBottom = '6px';
+        row.style.fontSize = '13px';
+
+        const isEmoji = !item.avatar.startsWith('http');
+        const avHtml = isEmoji ? item.avatar : '👤';
+        row.innerHTML = `
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span style="font-weight:800; color:#94a3b8; width:20px;">#${idx + 4}</span>
+            <span>${avHtml}</span>
+            <span style="font-weight:700; color:#fff;">${item.name}</span>
+          </div>
+          <div style="font-weight:800; color:#38bdf8;">${item.score} XP</div>
+        `;
+        listContainer.appendChild(row);
+      });
+
+      document.getElementById('modal-leaderboard').classList.add('open');
+    }
+
+    // 9. ACHIEVEMENTS MODAL
+    function openAchievements() {
+      soundEngine.playClick();
+      const container = document.getElementById('achievements-list');
+      container.innerHTML = '';
+
+      ACHIEVEMENTS.forEach(ach => {
+        const isUnlocked = state.unlockedAchievements.includes(ach.id);
+        const item = document.createElement('div');
+        item.style.display = 'flex';
+        item.style.alignItems = 'center';
+        item.style.gap = '14px';
+        item.style.padding = '12px 14px';
+        item.style.background = isUnlocked ? 'rgba(8, 47, 73, 0.5)' : 'rgba(30, 41, 59, 0.4)';
+        item.style.border = isUnlocked ? '1px solid #06b6d4' : '1px solid #334155';
+        item.style.borderRadius = '14px';
+        item.style.opacity = isUnlocked ? '1' : '0.6';
+
+        item.innerHTML = `
+          <div style="font-size: 32px; filter: ${isUnlocked ? 'none' : 'grayscale(100%)'};">${ach.icon}</div>
+          <div style="flex:1;">
+            <div style="display:flex; align-items:center; gap:8px; margin-bottom:2px;">
+              <span style="font-size:14px; font-weight:800; color:#fff;">${ach.title}</span>
+              ${isUnlocked ? '<span style="font-size:10px; background:#06b6d4; color:#020617; font-weight:800; padding:1px 6px; border-radius:9999px;">Получено</span>' : ''}
+            </div>
+            <div style="font-size:12px; color:#94a3b8;">${ach.description}</div>
+          </div>
+        `;
+        container.appendChild(item);
+      });
+
+      document.getElementById('modal-achievements').classList.add('open');
+    }
+
+    // 10. VK MODAL
+    let selectedAvatar = '🤖';
+    function pickAvatar(av) {
+      soundEngine.playClick();
+      selectedAvatar = av;
+      document.querySelectorAll('.avatar-pick-btn').forEach(btn => {
+        btn.style.borderColor = btn.textContent === av ? '#06b6d4' : 'transparent';
+      });
+    }
+
+    function openVkModal() {
+      soundEngine.playClick();
+      document.getElementById('input-username').value = state.userProfile.name;
+      document.getElementById('input-vkid').value = state.userProfile.vkId;
+      selectedAvatar = state.userProfile.avatar;
+      pickAvatar(selectedAvatar);
+      document.getElementById('modal-vk').classList.add('open');
+    }
+
+    function saveVkProfile() {
+      soundEngine.playClick();
+      const name = document.getElementById('input-username').value.trim() || 'Юный Кванторианец';
+      const vkid = document.getElementById('input-vkid').value.trim() || 'quantum_user';
+
+      state.userProfile = {
+        name: name,
+        vkId: vkid,
+        avatar: selectedAvatar
+      };
+      localStorage.setItem('quantum_user_profile', JSON.stringify(state.userProfile));
+      updateHeaderUser();
+      unlockAchievement('vk_connected');
+      closeModal('modal-vk');
+    }
+
+    // Modal helpers
+    function closeModal(id) {
+      document.getElementById(id).classList.remove('open');
+    }
+    function closeModalOnOverlay(e, id) {
+      if (e.target.id === id) {
+        closeModal(id);
+      }
+    }
+
+    // CERTIFICATE MODAL & CANVAS GENERATION
+    let currentCertCanvas = null;
+    let currentCertId = '';
+
+    function openCertificateModal() {
+      soundEngine.playClick();
+      saveParticipantData();
+
+      const inputN = document.getElementById('participant-name-input');
+      const inputS = document.getElementById('participant-school-input');
+
+      const modalN = document.getElementById('cert-modal-name');
+      const modalS = document.getElementById('cert-modal-school');
+
+      if (modalN) modalN.value = inputN ? inputN.value : (state.participantName || '');
+      if (modalS) modalS.value = inputS ? inputS.value : (state.participantSchool || '');
+
+      if (!currentCertId) {
+        currentCertId = 'QD-2026-' + Math.floor(1000 + Math.random() * 9000) + '-' + state.category.toUpperCase();
+      }
+      document.getElementById('cert-modal-id').textContent = currentCertId;
+
+      document.getElementById('modal-certificate').classList.add('open');
+      updateCertPreview();
+    }
+
+    function drawCertCanvasData(data) {
+      const canvas = document.createElement('canvas');
+      canvas.width = 1920;
+      canvas.height = 1080;
+      const ctx = canvas.getContext('2d');
+      const w = 1920, h = 1080;
+
+      // Background
+      const bg = ctx.createRadialGradient(w/2, h/2, 100, w/2, h/2, 1200);
+      bg.addColorStop(0, '#0d1527');
+      bg.addColorStop(0.5, '#050a14');
+      bg.addColorStop(1, '#02040a');
+      ctx.fillStyle = bg;
+      ctx.fillRect(0,0,w,h);
+
+      // Grid
+      ctx.strokeStyle = 'rgba(6, 182, 212, 0.08)';
+      ctx.lineWidth = 1.5;
+      for(let x=0; x<w; x+=60) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,h); ctx.stroke(); }
+      for(let y=0; y<h; y+=60) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(w,y); ctx.stroke(); }
+
+      // Frame
+      const frameGrad = ctx.createLinearGradient(0,0,w,h);
+      frameGrad.addColorStop(0, '#06b6d4');
+      frameGrad.addColorStop(0.5, '#3b82f6');
+      frameGrad.addColorStop(1, '#eab308');
+      ctx.strokeStyle = frameGrad;
+      ctx.lineWidth = 6;
+      ctx.strokeRect(50, 50, w-100, h-100);
+
+      // Emblem Atom
+      ctx.save();
+      ctx.translate(w/2, 150);
+      ctx.strokeStyle = '#06b6d4';
+      ctx.lineWidth = 3;
+      ctx.beginPath(); ctx.arc(0,0,38,0,Math.PI*2); ctx.stroke();
+      ctx.strokeStyle = '#38bdf8'; ctx.lineWidth = 2;
+      for(let i=0; i<3; i++) {
+        ctx.save(); ctx.rotate((i*Math.PI)/3);
+        ctx.beginPath(); ctx.ellipse(0,0,34,12,0,0,Math.PI*2); ctx.stroke();
+        ctx.restore();
+      }
+      ctx.fillStyle = '#fde047'; ctx.beginPath(); ctx.arc(0,0,8,0,Math.PI*2); ctx.fill();
+      ctx.restore();
+
+      // Header Text
+      ctx.textAlign = 'center';
+      ctx.font = '900 24px sans-serif'; ctx.fillStyle = '#38bdf8';
+      ctx.fillText('ДЕТСКИЙ ТЕХНОПАРК «КВАНТУМ ДОБРА»', w/2, 235);
+
+      const isWin = data.accuracy >= 80;
+      ctx.font = '900 52px sans-serif';
+      ctx.fillStyle = isWin ? '#fde047' : '#38bdf8';
+      ctx.fillText(isWin ? 'ДИПЛОМ ПОБЕДИТЕЛЯ' : 'СЕРТИФИКАТ УЧАСТНИКА', w/2, 305);
+
+      ctx.font = '500 18px sans-serif'; ctx.fillStyle = '#94a3b8';
+      ctx.fillText('НАУЧНО-ТЕХНИЧЕСКОЙ ВИКТОРИНЫ ПО ИННОВАЦИЯМ', w/2, 342);
+
+      ctx.font = '400 18px sans-serif'; ctx.fillStyle = '#cbd5e1';
+      ctx.fillText('Настоящий сертификат подтверждает, что', w/2, 415);
+
+      // Name
+      ctx.font = '900 48px sans-serif'; ctx.fillStyle = '#ffffff';
+      ctx.fillText(data.name || 'Участник Квантума', w/2, 480);
+      ctx.fillStyle = '#06b6d4'; ctx.fillRect(w/2 - 250, 502, 500, 3);
+
+      if (data.school) {
+        ctx.font = '600 22px sans-serif'; ctx.fillStyle = '#e2e8f0';
+        ctx.fillText(data.school, w/2, 545);
+      }
+
+      ctx.font = '400 19px sans-serif'; ctx.fillStyle = '#94a3b8';
+      ctx.fillText('успешно прошел(ла) испытания викторины по направлению:', w/2, 610);
+
+      // Cat pill
+      ctx.fillStyle = 'rgba(15,23,42,0.8)'; ctx.strokeStyle = 'rgba(6,182,212,0.5)'; ctx.lineWidth = 2;
+      ctx.fillRect(w/2 - 340, 635, 680, 54);
+      ctx.strokeRect(w/2 - 340, 635, 680, 54);
+      ctx.font = '800 24px sans-serif'; ctx.fillStyle = '#38bdf8';
+      ctx.fillText(data.categoryTitle.toUpperCase(), w/2, 671);
+
+      // Badges
+      const badges = [
+        { label: 'ВОЗРАСТ', val: data.ageTitle, color: '#38bdf8' },
+        { label: 'НАБРАНО ОЧКОВ', val: data.score + ' XP', color: '#fde047' },
+        { label: 'ТОЧНОСТЬ', val: data.accuracy + '%', color: '#4ade80' },
+        { label: 'РЕЗУЛЬТАТ', val: data.correctCount + ' из ' + data.totalCount, color: '#c084fc' }
+      ];
+      let bx = w/2 - (4 * 260 + 3 * 40)/2;
+      badges.forEach(b => {
+        ctx.fillStyle = 'rgba(15,23,42,0.7)'; ctx.strokeStyle = b.color + '66'; ctx.lineWidth = 1.5;
+        ctx.fillRect(bx, 730, 260, 75); ctx.strokeRect(bx, 730, 260, 75);
+        ctx.font = '700 12px sans-serif'; ctx.fillStyle = '#94a3b8'; ctx.fillText(b.label, bx + 130, 756);
+        ctx.font = '900 22px sans-serif'; ctx.fillStyle = b.color; ctx.fillText(b.val, bx + 130, 788);
+        bx += 300;
+      });
+
+      // Footer Date & ID
+      ctx.textAlign = 'left'; ctx.font = '600 15px sans-serif'; ctx.fillStyle = '#94a3b8';
+      ctx.fillText('Дата: ' + data.dateStr, 120, h - 130);
+      ctx.fillText('ID Сертификата: ' + data.certId, 120, h - 100);
+
+      return canvas;
+    }
+
+    function updateCertPreview() {
+      const modalN = document.getElementById('cert-modal-name');
+      const modalS = document.getElementById('cert-modal-school');
+
+      const name = (modalN && modalN.value.trim()) || state.participantName || 'Участник Квантума';
+      const school = (modalS && modalS.value.trim()) || state.participantSchool || '';
+
+      const catTitles = { vr: 'VR-технологии', robotics: 'Робототехника', lego: 'Легоконструирование', all: 'Квантум Микс' };
+      const ageTitles = { kids: '6–9 лет', juniors: '10–13 лет', seniors: '14+ лет' };
+
+      const totalQ = state.activeQuestions.length || 8;
+      const acc = Math.round((state.correctCount / totalQ) * 100);
+
+      const data = {
+        name: name,
+        school: school,
+        categoryTitle: catTitles[state.category] || 'Квантум Микс',
+        ageTitle: ageTitles[state.ageGroup] || '10–13 лет',
+        score: state.score,
+        accuracy: acc,
+        correctCount: state.correctCount,
+        totalCount: totalQ,
+        dateStr: new Date().toLocaleDateString('ru-RU'),
+        certId: currentCertId
+      };
+
+      currentCertCanvas = drawCertCanvasData(data);
+      document.getElementById('cert-img-preview').src = currentCertCanvas.toDataURL('image/png');
+    }
+
+    function downloadCertFromModal() {
+      soundEngine.playClick();
+      if (!currentCertCanvas) updateCertPreview();
+      const link = document.createElement('a');
+      link.download = 'Certificate_Quantum_Dobra.png';
+      link.href = currentCertCanvas.toDataURL('image/png');
+      link.click();
+    }
+
+    function printCertFromModal() {
+      soundEngine.playClick();
+      if (!currentCertCanvas) updateCertPreview();
+      const win = window.open('', '_blank');
+      if (win) {
+        win.document.write('<html><body style="margin:0;background:#000;display:flex;align-items:center;justify-content:center;height:100vh;" onload="window.print();"><img src="' + currentCertCanvas.toDataURL('image/png') + '" style="max-width:100vw;max-height:100vh;object-fit:contain;"/></body></html>');
+        win.document.close();
+      }
+    }
+
+    document.getElementById('btn-open-leaderboard').addEventListener('click', openLeaderboard);
+    document.getElementById('btn-open-achievements').addEventListener('click', openAchievements);
+    document.getElementById('btn-open-vk').addEventListener('click', openVkModal);
+
+    // Initial setup
+    loadSavedData();
+    updateQuestionsCount();
+  </script>
+</body>
+</html>

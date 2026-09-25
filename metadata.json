@@ -1,0 +1,6 @@
+{
+  "name": "Квантум Добра: Квиз",
+  "description": "Интерактивная адаптивная викторина технопарка «Квантум Добра» по VR технологиям, робототехнике и LEGO-конструированию.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
