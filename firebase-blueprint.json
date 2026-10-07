@@ -1,0 +1,58 @@
+{
+  "entities": {
+    "LeaderboardEntry": {
+      "title": "Leaderboard Entry",
+      "description": "Public score and participant progress for the shared Quantum Dombra leaderboard",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "maxLength": 128
+        },
+        "name": {
+          "type": "string",
+          "maxLength": 100
+        },
+        "vkId": {
+          "type": "string",
+          "maxLength": 100
+        },
+        "avatar": {
+          "type": "string",
+          "maxLength": 500
+        },
+        "score": {
+          "type": "number"
+        },
+        "accuracy": {
+          "type": "number"
+        },
+        "category": {
+          "type": "string",
+          "maxLength": 50
+        },
+        "ageGroup": {
+          "type": "string",
+          "maxLength": 50
+        },
+        "badgesCount": {
+          "type": "number"
+        },
+        "school": {
+          "type": "string",
+          "maxLength": 150
+        },
+        "updatedAt": {
+          "type": "number"
+        }
+      },
+      "required": ["id", "name", "score", "category", "ageGroup"]
+    }
+  },
+  "firestore": {
+    "/leaderboard/{entryDocId}": {
+      "schema": "LeaderboardEntry",
+      "description": "Shared leaderboard collection for all participants using the same app link"
+    }
+  }
+}

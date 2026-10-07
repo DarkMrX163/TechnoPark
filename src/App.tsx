@@ -4,6 +4,19 @@ import { AGE_TIERS, QUESTIONS, shuffleQuestionOptions } from './data/questions';
 import { ACHIEVEMENTS } from './data/achievements';
 import { INITIAL_LEADERBOARD } from './data/initialLeaderboard';
 import { sounds } from './utils/audio';
+import {
+  loadLeaderboard,
+  loadUserStats,
+  saveQuizResultToRating,
+  syncPlayerToLeaderboard,
+  clearPlayerRating,
+  clearEntireLocalLeaderboard
+} from './utils/ratingStorage';
+import {
+  subscribeToCloudLeaderboard,
+  savePlayerToCloud,
+  clearCloudLeaderboardAll
+} from './utils/cloudLeaderboard';
 
 import { Header } from './components/Header';
 import { AgeSelector } from './components/AgeSelector';
@@ -53,37 +66,61 @@ export default function App() {
   const [showCertificate, setShowCertificate] = useState(false);
   const [roundLength, setRoundLength] = useState<number>(8);
 
-  // Initialize from storage on mount
+  // Initialize from storage & subscribe to Firestore cloud leaderboard on mount
   useEffect(() => {
     try {
       setIsMuted(sounds.getMuted());
 
       const savedUser = localStorage.getItem('quantum_vk_user');
+      let parsedUser: VkUser | null = null;
       if (savedUser) {
-        setUser(JSON.parse(savedUser));
+        parsedUser = JSON.parse(savedUser);
+        setUser(parsedUser);
       }
 
-      const savedName = localStorage.getItem('quantum_participant_name');
-      if (savedName) {
-        setParticipantName(savedName);
-      }
+      const savedName = localStorage.getItem('quantum_participant_name') || '';
+      const savedSchool = localStorage.getItem('quantum_participant_school') || '';
 
-      const savedSchool = localStorage.getItem('quantum_participant_school');
-      if (savedSchool) {
-        setParticipantSchool(savedSchool);
-      }
+      setParticipantName(savedName);
+      setParticipantSchool(savedSchool);
 
       const savedAchievements = localStorage.getItem('quantum_achievements');
       if (savedAchievements) {
         setUnlockedAchievementIds(JSON.parse(savedAchievements));
       }
 
-      const savedLeaderboard = localStorage.getItem('quantum_leaderboard');
-      if (savedLeaderboard) {
-        setLeaderboard(JSON.parse(savedLeaderboard));
+      const loadedList = loadLeaderboard();
+
+      // Sync participant to local leaderboard
+      const { updatedList } = syncPlayerToLeaderboard(
+        savedName,
+        savedSchool,
+        parsedUser,
+        0,
+        0,
+        'all',
+        'juniors',
+        savedAchievements ? JSON.parse(savedAchievements).length : 0
+      );
+
+      setLeaderboard(updatedList);
+
+      // One-time purge of unknown/mock entities as requested
+      if (!localStorage.getItem('quantum_purged_unknowns_v1')) {
+        localStorage.setItem('quantum_purged_unknowns_v1', 'true');
+        clearEntireLocalLeaderboard();
+        clearCloudLeaderboardAll();
       }
+
+      // Subscribe to shared Cloud Firestore leaderboard
+      const currentId = parsedUser?.id || localStorage.getItem('quantum_client_id') || 'guest';
+      const unsubscribe = subscribeToCloudLeaderboard(currentId, (cloudEntries) => {
+        setLeaderboard(cloudEntries || []);
+      });
+
+      return () => unsubscribe();
     } catch (e) {
-      console.error('Storage parse error:', e);
+      console.error('Storage or Cloud sync error:', e);
     }
   }, []);
 
@@ -116,6 +153,33 @@ export default function App() {
     setParticipantSchool(school);
     localStorage.setItem('quantum_participant_name', name);
     localStorage.setItem('quantum_participant_school', school);
+
+    // Sync directly into local & cloud leaderboard
+    const { updatedList } = syncPlayerToLeaderboard(
+      name,
+      school,
+      user,
+      0,
+      0,
+      selectedCategory,
+      selectedAge,
+      unlockedAchievementIds.length
+    );
+    setLeaderboard(updatedList);
+
+    const userEntry = updatedList.find((e) => e.isCurrentUser || e.id === user?.id);
+    if (userEntry) {
+      savePlayerToCloud(
+        name,
+        school,
+        user,
+        userEntry.score,
+        userEntry.accuracy,
+        selectedCategory,
+        selectedAge,
+        unlockedAchievementIds.length
+      );
+    }
   };
 
   const handleVkLogin = (loggedInUser: VkUser) => {
@@ -123,10 +187,11 @@ export default function App() {
     localStorage.setItem('quantum_vk_user', JSON.stringify(loggedInUser));
     setShowVkAuth(false);
 
+    let effectiveName = participantName;
     if (!participantName) {
-      const vkFullName = `${loggedInUser.first_name} ${loggedInUser.last_name}`;
-      setParticipantName(vkFullName);
-      localStorage.setItem('quantum_participant_name', vkFullName);
+      effectiveName = `${loggedInUser.first_name} ${loggedInUser.last_name}`;
+      setParticipantName(effectiveName);
+      localStorage.setItem('quantum_participant_name', effectiveName);
     }
 
     // Trigger VK connection achievement
@@ -134,6 +199,31 @@ export default function App() {
     if (ach) {
       setRecentlyUnlocked((prev) => [...prev, ach]);
     }
+
+    // Sync user with VK to local and cloud leaderboard
+    const { updatedList } = syncPlayerToLeaderboard(
+      effectiveName,
+      participantSchool,
+      loggedInUser,
+      0,
+      0,
+      selectedCategory,
+      selectedAge,
+      unlockedAchievementIds.length
+    );
+    setLeaderboard(updatedList);
+
+    const userEntry = updatedList.find((e) => e.isCurrentUser || e.id === loggedInUser.id);
+    savePlayerToCloud(
+      effectiveName,
+      participantSchool,
+      loggedInUser,
+      userEntry?.score || 0,
+      userEntry?.accuracy || 0,
+      selectedCategory,
+      selectedAge,
+      unlockedAchievementIds.length
+    );
   };
 
   const handleLogout = () => {
@@ -141,6 +231,17 @@ export default function App() {
       setUser(null);
       localStorage.removeItem('quantum_vk_user');
     }
+  };
+
+  const handleClearRating = async () => {
+    const { updatedList } = clearPlayerRating();
+    setLeaderboard(updatedList);
+  };
+
+  const handleClearAllLeaderboard = async () => {
+    const { updatedList } = clearEntireLocalLeaderboard();
+    setLeaderboard(updatedList);
+    await clearCloudLeaderboardAll();
   };
 
   // Filter questions for the selected age group & category
@@ -227,50 +328,42 @@ export default function App() {
 
     setRecentlyUnlocked(newEarned);
 
-    // Update Leaderboard
-    const playerId = user?.id || 'guest_player';
-    const playerName = user ? `${user.first_name} ${user.last_name}` : 'Гость Квантума';
-    const playerAvatar = user?.photo_200 || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=120&q=80';
+    const totalBadges = unlockedAchievementIds.length + newEarned.length;
 
-    const newEntry: LeaderboardEntry = {
-      id: playerId,
-      name: playerName,
-      vkId: user?.isVkConnected ? user.id : undefined,
-      avatar: playerAvatar,
-      score: stats.score,
+    // Record result into persistent rating storage
+    const { updatedList } = saveQuizResultToRating(
+      stats,
+      selectedCategory,
+      selectedAge,
+      user,
+      participantName,
+      participantSchool,
+      totalBadges
+    );
+
+    setLeaderboard(updatedList);
+
+    // Save to shared Cloud Firestore
+    const userEntry = updatedList.find((e) => e.isCurrentUser || e.id === user?.id);
+    savePlayerToCloud(
+      participantName,
+      participantSchool,
+      user,
+      userEntry?.score || stats.score,
       accuracy,
-      category: selectedCategory,
-      ageGroup: selectedAge,
-      badgesCount: unlockedAchievementIds.length + newEarned.length,
-      date: 'Только что',
-      isCurrentUser: true
-    };
-
-    setLeaderboard((prev) => {
-      // Replace existing entry if current user already has one, keep highest score
-      const existingIdx = prev.findIndex((e) => e.id === playerId);
-      let updatedList = [...prev];
-
-      if (existingIdx >= 0) {
-        if (stats.score > prev[existingIdx].score) {
-          updatedList[existingIdx] = newEntry;
-        }
-      } else {
-        updatedList.push(newEntry);
-      }
-
-      updatedList.sort((a, b) => b.score - a.score);
-      localStorage.setItem('quantum_leaderboard', JSON.stringify(updatedList));
-      return updatedList;
-    });
+      selectedCategory,
+      selectedAge,
+      totalBadges
+    );
 
     // Update user stats
+    const currentStats = loadUserStats();
     if (user) {
       const updatedUser: VkUser = {
         ...user,
-        totalXp: (user.totalXp || 0) + stats.score,
-        gamesPlayed: (user.gamesPlayed || 0) + 1,
-        level: Math.floor(((user.totalXp || 0) + stats.score) / 1000) + 1
+        totalXp: currentStats.totalScore,
+        gamesPlayed: currentStats.gamesCompleted,
+        level: Math.floor(currentStats.totalScore / 1000) + 1
       };
       setUser(updatedUser);
       localStorage.setItem('quantum_vk_user', JSON.stringify(updatedUser));
@@ -480,6 +573,11 @@ export default function App() {
         <LeaderboardModal
           entries={leaderboard}
           currentUserId={user?.id}
+          participantName={participantName}
+          participantSchool={participantSchool}
+          onUpdateParticipantInfo={handleUpdateParticipantInfo}
+          onClearRating={handleClearRating}
+          onClearAllLeaderboard={handleClearAllLeaderboard}
           onClose={() => setShowLeaderboard(false)}
         />
       )}
