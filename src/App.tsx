@@ -105,11 +105,12 @@ export default function App() {
 
       setLeaderboard(updatedList);
 
-      // One-time purge of unknown/mock entities as requested
-      if (!localStorage.getItem('quantum_purged_unknowns_v1')) {
-        localStorage.setItem('quantum_purged_unknowns_v1', 'true');
+      // Force clear leaderboard as requested
+      if (!localStorage.getItem('quantum_leaderboard_reset_v5')) {
+        localStorage.setItem('quantum_leaderboard_reset_v5', 'true');
         clearEntireLocalLeaderboard();
         clearCloudLeaderboardAll();
+        setLeaderboard([]);
       }
 
       // Subscribe to shared Cloud Firestore leaderboard

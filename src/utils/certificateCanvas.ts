@@ -11,7 +11,7 @@ export interface CertificateData {
   certId: string;
 }
 
-// Draw 3D Movie Cheburashka (CGI movie version with realistic fluffy fur & glossy hazel eyes)
+// Draw 3D Movie Cheburashka (CGI movie version with realistic fluffy fur, orange in paw & glossy hazel eyes)
 function draw3DMovieCheburashka(
   ctx: CanvasRenderingContext2D,
   cx: number,
@@ -27,18 +27,18 @@ function draw3DMovieCheburashka(
   ctx.translate(-300, -260); // Offset center to (300, 260)
 
   // 1. Soft Cyber Glowing Backlight
-  const bgGlow = ctx.createRadialGradient(300, 260, 20, 300, 260, 260);
-  bgGlow.addColorStop(0, 'rgba(6, 182, 212, 0.35)');
-  bgGlow.addColorStop(0.5, 'rgba(234, 179, 8, 0.18)');
+  const bgGlow = ctx.createRadialGradient(300, 260, 20, 300, 260, 270);
+  bgGlow.addColorStop(0, 'rgba(6, 182, 212, 0.4)');
+  bgGlow.addColorStop(0.5, 'rgba(234, 179, 8, 0.2)');
   bgGlow.addColorStop(1, 'rgba(0, 0, 0, 0)');
   ctx.fillStyle = bgGlow;
   ctx.beginPath();
-  ctx.arc(300, 260, 260, 0, Math.PI * 2);
+  ctx.arc(300, 260, 270, 0, Math.PI * 2);
   ctx.fill();
 
   if (showBadge) {
     // Tech Gold & Cyan Rings Frame
-    ctx.strokeStyle = 'rgba(56, 189, 248, 0.65)';
+    ctx.strokeStyle = 'rgba(56, 189, 248, 0.75)';
     ctx.lineWidth = 3.5;
     ctx.setLineDash([10, 6]);
     ctx.beginPath();
@@ -46,7 +46,7 @@ function draw3DMovieCheburashka(
     ctx.stroke();
     ctx.setLineDash([]);
 
-    ctx.strokeStyle = 'rgba(234, 179, 8, 0.9)';
+    ctx.strokeStyle = 'rgba(234, 179, 8, 0.95)';
     ctx.lineWidth = 4;
     ctx.beginPath();
     ctx.arc(300, 260, 255, 0, Math.PI * 2);
@@ -57,14 +57,14 @@ function draw3DMovieCheburashka(
     ctx.strokeStyle = '#06b6d4';
     ctx.lineWidth = 2.5;
     ctx.beginPath();
-    ctx.roundRect(300 - 110, 260 + 220, 220, 42, 18);
+    ctx.roundRect(300 - 120, 260 + 215, 240, 44, 20);
     ctx.fill();
     ctx.stroke();
 
     ctx.font = '900 20px "Inter", "Segoe UI", sans-serif';
     ctx.fillStyle = '#fde047';
     ctx.textAlign = 'center';
-    ctx.fillText('ЧЕБУРАШКА', 300, 260 + 248);
+    ctx.fillText('ЧЕБУРАШКА', 300, 260 + 244);
   }
 
   // Fur Radial Gradients
@@ -94,7 +94,7 @@ function draw3DMovieCheburashka(
   faceSkin3D.addColorStop(1, '#d68f5c');
 
   // Ground Shadow
-  ctx.fillStyle = 'rgba(0,0,0,0.45)';
+  ctx.fillStyle = 'rgba(0,0,0,0.5)';
   ctx.beginPath();
   ctx.ellipse(300, 510, 160, 25, 0, 0, Math.PI * 2);
   ctx.fill();
@@ -181,6 +181,33 @@ function draw3DMovieCheburashka(
   ctx.bezierCurveTo(365, 430, 350, 400, 360, 370);
   ctx.fill();
   ctx.stroke();
+
+  // Movie Ripe Orange (Апельсин из фильма в лапке)
+  ctx.save();
+  ctx.translate(222, 395);
+  const orangeGrad = ctx.createRadialGradient(-5, -5, 2, 0, 0, 24);
+  orangeGrad.addColorStop(0, '#ffbe3b');
+  orangeGrad.addColorStop(0.5, '#f97316');
+  orangeGrad.addColorStop(1, '#c2410c');
+  ctx.fillStyle = orangeGrad;
+  ctx.beginPath();
+  ctx.arc(0, 0, 24, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Orange texture dots
+  ctx.fillStyle = 'rgba(154, 52, 18, 0.4)';
+  ctx.beginPath();
+  ctx.arc(-8, -6, 2, 0, Math.PI * 2);
+  ctx.arc(6, 5, 2, 0, Math.PI * 2);
+  ctx.arc(-4, 8, 1.5, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Green leaf on orange
+  ctx.fillStyle = '#22c55e';
+  ctx.beginPath();
+  ctx.ellipse(-6, -22, 11, 5, -0.6, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
 
   // Head 3D Fur Hood
   ctx.fillStyle = headFur;
@@ -480,9 +507,6 @@ export function drawCertificateCanvas(data: CertificateData): HTMLCanvasElement 
     ctx.restore();
   }
 
-  // 3.5. 3D Movie Cheburashka on Certificate Background (Soft Watermark)
-  draw3DMovieCheburashka(ctx, w - 260, h / 2 + 20, 0.85, 0.25, false);
-
   // Core nucleus
   ctx.fillStyle = '#fde047';
   ctx.beginPath();
@@ -490,9 +514,6 @@ export function drawCertificateCanvas(data: CertificateData): HTMLCanvasElement 
   ctx.fill();
 
   ctx.restore();
-
-  // 3D Movie Cheburashka in top-right corner frame
-  draw3DMovieCheburashka(ctx, w - 175, 150, 0.38, 1, true);
 
   // 5. Text Header - Split into lines as requested
   ctx.save();
