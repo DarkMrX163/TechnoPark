@@ -395,6 +395,7 @@ export default function App() {
         score={user?.totalXp || 0}
         streak={0}
         isMuted={isMuted}
+        participantsCount={leaderboard.length}
         onToggleSound={handleToggleSound}
         onOpenLeaderboard={() => setShowLeaderboard(true)}
         onOpenAchievements={() => setShowAchievements(true)}
@@ -474,11 +475,14 @@ export default function App() {
                   <span className="p-2 rounded-xl bg-yellow-500/10 text-yellow-400 group-hover:scale-110 transition-transform">
                     <Trophy className="w-5 h-5" />
                   </span>
-                  <span className="text-xs text-yellow-400 font-semibold">Смотреть</span>
+                  <span className="text-xs text-yellow-400 font-semibold flex items-center gap-1">
+                    <Users className="w-3.5 h-3.5 text-cyan-400" />
+                    {leaderboard.length} уч.
+                  </span>
                 </div>
                 <h4 className="text-sm font-bold text-white mb-1">Таблица лидеров</h4>
                 <p className="text-xs text-slate-400">
-                  Соревнуйся с другими резидентами Квантума и бей рекорды.
+                  Соревнуйся с {leaderboard.length > 0 ? `${leaderboard.length} участниками` : 'другими резидентами'} Квантума и бей рекорды.
                 </p>
               </div>
 

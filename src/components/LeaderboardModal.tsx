@@ -1,7 +1,16 @@
 import React, { useState } from 'react';
 import { LeaderboardEntry, CategoryId, AgeGroup } from '../types';
 import { sounds } from '../utils/audio';
-import { Trophy, X, Filter, Award, CheckCircle2, Save, UserCheck, GraduationCap, History, Trash2, ShieldCheck, Sparkles } from 'lucide-react';
+import { Trophy, X, Filter, Award, CheckCircle2, Save, UserCheck, GraduationCap, History, Trash2, ShieldCheck, Sparkles, Users } from 'lucide-react';
+
+function formatParticipantsCount(count: number): string {
+  const mod10 = count % 10;
+  const mod100 = count % 100;
+  if (mod100 >= 11 && mod100 <= 19) return `${count} участников`;
+  if (mod10 === 1) return `${count} участник`;
+  if (mod10 >= 2 && mod10 <= 4) return `${count} участника`;
+  return `${count} участников`;
+}
 import { loadRatingHistory, RatingHistoryEntry } from '../utils/ratingStorage';
 
 interface LeaderboardModalProps {
@@ -136,6 +145,37 @@ export const LeaderboardModal: React.FC<LeaderboardModalProps> = ({
           >
             <X className="w-5 h-5" />
           </button>
+        </div>
+
+        {/* Total Quiz Participants Counter Bar */}
+        <div className="mb-3.5 p-3 sm:p-3.5 rounded-2xl bg-gradient-to-r from-blue-950/80 via-indigo-950/60 to-slate-900 border border-blue-500/30 flex items-center justify-between gap-3 shadow-lg">
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 rounded-xl bg-blue-500/20 text-cyan-300 border border-blue-400/40 shrink-0">
+              <Users className="w-5 h-5 text-cyan-400 animate-pulse" />
+            </div>
+            <div>
+              <span className="text-[11px] text-slate-300 font-semibold block uppercase tracking-wider">
+                Участников викторины
+              </span>
+              <div className="flex items-center gap-2">
+                <span className="text-lg sm:text-xl font-black text-white tabular-nums">
+                  {formatParticipantsCount(entries.length)}
+                </span>
+                {filtered.length !== entries.length && (
+                  <span className="text-xs px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 font-medium">
+                    Показано: {filtered.length}
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
+
+          <div className="text-right hidden xs:block">
+            <span className="inline-flex items-center gap-1.5 text-xs font-bold px-2.5 py-1 rounded-xl bg-cyan-500/10 text-cyan-300 border border-cyan-500/30">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+              Живой рейтинг
+            </span>
+          </div>
         </div>
 
         {/* User Status Card */}

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Volume2, VolumeX, Trophy, Award, Sparkles, LogOut } from 'lucide-react';
+import { Volume2, VolumeX, Trophy, Award, Sparkles, LogOut, Users } from 'lucide-react';
 import { VkUser } from '../types';
 import { sounds } from '../utils/audio';
 
@@ -8,6 +8,7 @@ interface HeaderProps {
   score: number;
   streak: number;
   isMuted: boolean;
+  participantsCount?: number;
   onToggleSound: () => void;
   onOpenLeaderboard: () => void;
   onOpenAchievements: () => void;
@@ -20,6 +21,7 @@ export const Header: React.FC<HeaderProps> = ({
   score,
   streak,
   isMuted,
+  participantsCount = 0,
   onToggleSound,
   onOpenLeaderboard,
   onOpenAchievements,
@@ -98,11 +100,17 @@ export const Header: React.FC<HeaderProps> = ({
               sounds.playClick();
               onOpenLeaderboard();
             }}
-            title="Таблица лидеров"
+            title={`Таблица лидеров (${participantsCount} участников)`}
             className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-slate-800/70 hover:bg-slate-700 text-slate-300 hover:text-blue-300 border border-slate-700/50 transition-colors text-xs sm:text-sm font-medium"
           >
             <Trophy className="w-4 h-4 text-yellow-400" />
             <span className="hidden md:inline">Лидеры</span>
+            {participantsCount > 0 && (
+              <span className="inline-flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">
+                <Users className="w-2.5 h-2.5 text-cyan-400" />
+                {participantsCount}
+              </span>
+            )}
           </button>
 
           {/* VK Authorization Pill / Button */}
